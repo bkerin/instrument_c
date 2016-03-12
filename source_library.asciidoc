@@ -1,0 +1,29 @@
+
+Instrumentation Source Library
+==============================
+
+There are really only two files to it.  You might preferr to just cut and
+paste.  The header has a few useful macros worth grabbing if you go that route.
+
+Download
+--------
+
+The download includes a small amount of supporting stuff to test it out.  Try
+`make run_instrument_test` from the unpacked directory.
+
+link:Download.html[Download]
+
+Browse
+------
+
+.instrument.h
+[source, c]
+----
+include::test.h[] 
+----
+
+.instrument.c
+[source, c]
+----
+include::test.c[]
+----

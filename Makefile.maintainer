@@ -1,0 +1,18 @@
+
+# Recipies for packing up and distributing the instrument source library
+
+SOURCES = $(wildcard *.h *.c)
+
+es:
+	echo $(SOURCES)
+
+HTML_FILES = $(patsubst %.asciidoc,%.html,$(wildcard *.asciidoc))
+
+$(HTML_FILES): %.html: %.asciidoc
+	asciidoc $<
+
+.PHONY: tarball
+tarball:
+
+.PHONY: upload
+upload:
