@@ -17,8 +17,11 @@ PACKING_LIST = Makefile $(SOURCES)
 
 .PHONY: tarball
 tarball:
+	# Requre VERSION variable to be set
 	[ -n "$(VERSION)" ] || (echo VERSION not set 1>&2 && false)
+	# Requre the git repo to be clean
 	echo $(GIT_DESCRIPTION) | grep -v -e '-dirty'
+	# Requre the git repo to be tagged with specified version
 	[ "$(GIT_DESCRIPTION)" = "version_$(VERSION)" ]
 	mkdir instrument-$(VERSION)
 	cp $(PACKING_LIST) instrument-$(VERSION)
