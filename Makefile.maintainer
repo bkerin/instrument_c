@@ -13,11 +13,15 @@ GIT_DESCRIPTION = `git describe --dirty --tags --always`
 egd:
 	echo $(GIT_DESCRIPTION)
 
+PACKING_LIST = Makefile $(SOURCES)
+
 .PHONY: tarball
 tarball:
 	[ -n "$(VERSION)" ] || (echo VERSION not set 1>&2 && false)
 	echo $(GIT_DESCRIPTION) | grep -v -e '-dirty'
 	[ "$(GIT_DESCRIPTION)" = "version_$(VERSION)" ]
+	mkdir instrument-$(VERSION)
+	cp $(PACKING_LIST) /tmp/instrument-$(VERSION)
 
 .PHONY: upload
 upload: tarball
