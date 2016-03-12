@@ -21,7 +21,9 @@ tarball:
 	echo $(GIT_DESCRIPTION) | grep -v -e '-dirty'
 	[ "$(GIT_DESCRIPTION)" = "version_$(VERSION)" ]
 	mkdir instrument-$(VERSION)
-	cp $(PACKING_LIST) /instrument-$(VERSION)
+	cp $(PACKING_LIST) instrument-$(VERSION)
+	tar czvf instrument-$(VERSION).tar.gz instrument-$(VERSION)/
+	rm -rf instrument-$(VERSION)
 
 .PHONY: upload
 upload: tarball
