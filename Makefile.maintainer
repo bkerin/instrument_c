@@ -17,7 +17,7 @@ egd:
 tarball:
 	[ -n "$(VERSION)" ] || (echo VERSION not set 1>&2 && false)
 	echo $(GIT_DESCRIPTION) | grep -v -e '-dirty'
-	echo $(GIT_DESCRIPTION) | perl -e '$$_ eq "version_$$(VERSION)" or die'
+	[ "$(GIT_DESCRIPTION)" = "version_$(VERSION)" ]
 
 .PHONY: upload
-upload:
+upload: tarball
