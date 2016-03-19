@@ -1,0 +1,65 @@
+
+// Note: this file is intended to be used with asciidoctor rather than asciidoc
+
+Ditch Your Debugger
+===================
+:nofooter:  // Prevent obnoxious "last modified" thing by not having footer
+
+Here's <<why_debuggers_are_bad.asciidoc#, why debuggers are bad>>.
+
+This article describes an alternative system to using a debugger.  There's also
+a tiny <<source_library.asciidoc#, source library>> (just a single .c/.h pair)
+that implements some of these ideas, and a demo setup for it.
+
+Things You Need to Avoid the Debugger
+-------------------------------------
+
+* Convenient checkpoints and value output.  See the the `CP()`, `TV()` and
+`TS()` macros from the <<source_library.asciidoc#, source library>>, or make
+editor macros for things like this:
++
+[source, c]
+----
+printf ("%s:%i:%s: checkpoint\n", __FILE__, __LINE__, __func__);
+----
+
+* A way to get a backtrace.  The (GNU-specific) `backtrace()` and
+  `backtrace_symbols()` functions together with the `addr2line` program can do
+  this.  See the `backtrace_with_line_numbers()` function or `BT_ASSERT()`
+  macro from the <<source_library.asciidoc#, source library>>.  For this to
+  work well you have to use the right compiler options as documented in the
+  header.
+  
+* A way to look up the function and source location pointed to by a function
+  pointer, so you can use instrumentation to find out what's going to be called
+  from a given point at run time.  See `what_func()` from the
+  <<source_library.asciidoc#, source library>> which does this using the nm
+  program and dladdr() function.  For this to work well you have to use the
+  right compiler options as documented in the header.
+
+* A strategy for dealing with memory errors.  I use valgrind like this:
++
+[source, sh]
+----
+valgrind --leak-check=yes --undef-value-errors=no ./my_exe my_exe_arg 2>&1 | tee /tmp/valgrind_log
+----
+
+* A strategy for exploring your program's call tree statically.  I mostly use
+vim and cscope for C, and <GNU global> or <exuberant ctags> for other things.
+For whole-system exploration I like the HTML call graph type things that <GNU
+Global> produces.
+
+* A decent build system, i.e. one that can rebuild your program fast.  You want
+  this anyway: trying to work around a slow build system with a debugger is
+  unpleasant at best.  The <ccache>> program may be useful.  the GNU <binutils>
+  features a new linker called <gold> that is supposed to be significantly
+  faster than the old one.
+
+The features of the <<source_library.asciidoc#, source library>> are of course
+not needed for script languages, since they have that stuff built in.
+
+It sounds like a lot to sort out, but it's mostly easy and you get a much
+better result.  All of the above stuff can be expanded in arbitrary directions.
+If you need to write some code to visualize your data you can do so in the most
+natural way, using the language at hand.  You aren't locked in the little box
+that the debugger provides.

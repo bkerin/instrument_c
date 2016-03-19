@@ -1,11 +1,10 @@
 // Implementation of the interface described in instrument.h
 
-#define _GNU_SOURCE
-
 #include <assert.h>
 #include <dlfcn.h>
 #include <execinfo.h>
 #include <limits.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,11 +15,24 @@
 
 #include "instrument.h"
 
-// FIXME: make a wrapper for the readlink() proc magic thingy
+static void
+get_executable_name (char *executable_name)
+{
+  // Set the string executable_name to the name of the current executable,
+  // as determined by using readlink() on the "/proc/self/exe" magical link.
+  // The executable_name pointer must point to PATH_MAX + 1 or more bytes
+  // of memory.
 
-// FIXME: use this function
+  ssize_t bytes_read; 
+
+  bytes_read = readlink ("/proc/self/exe", executable_name, PATH_MAX + 1);
+  assert (bytes_read != -1);
+  assert (bytes_read <= PATH_MAX);      // Systems don't always honor PATH_MAX
+  executable_name[bytes_read] = '\0';   // readlink() doesn't do this for us
+}
+
 static int
-file_open_tmp (char *template)
+open_tmp_file (char *template)
 {
   // Open a new temporary file in our best guess at the system temporary
   // directory.  The template must contain the file base name with "XXXXXX"
@@ -28,7 +40,7 @@ file_open_tmp (char *template)
   // part and replace the "XXXXXX" string.  It is assumed it has length at
   // least PATH_MAX + 1.  The file descriptor of the open file is returned.
   // On error an assertion violation is triggered.
-  
+
   char dir_part[PATH_MAX + 1] = "";
   char *tmpdir_ev = NULL;   // TMPDIR Environment Variable value
   int temp_file_fd;
@@ -50,7 +62,7 @@ file_open_tmp (char *template)
 
   // Assemble the full template path (still with "XXXXXX" at this stage)
   assert (strlen (dir_part) + strlen (template) <= PATH_MAX);
-  strcpy (template, strcat (dir_part, template));
+  strcpy (template, strcat (strcat (dir_part, "/"), template));
 
   // Fill in the "XXXXXX" part
   temp_file_fd = mkstemp (template);
@@ -59,108 +71,134 @@ file_open_tmp (char *template)
   return temp_file_fd;   
 }
 
+#ifdef __GNUC__
+#  define MAYBE_PRINTF_ATTRIBUTE(format_pos, first_other_pos) \
+    __attribute__ ((format (printf, format_pos, first_other_pos)));
+#else
+#  define MAYBE_PRINTF_ATTRIBUTE(format, first_other)
+#endif
+
+#define EXPANDED_SYSTEM_COMMAND_MAX_LENGTH 4042
+
+// Expand the string in format a la snprintf(), then pass it to system()
+// and return the result of that function.  If the expanded string would
+// come out longer than EXPANDED_SYSTEM_COMMAND_MAX_LENGTH an assertion
+// violation is triggered.
+int
+expand_system (char const *format, ...) MAYBE_PRINTF_ATTRIBUTE (1, 2);
+
+int
+expand_system (char const *format, ...)
+{
+  char ec[EXPANDED_SYSTEM_COMMAND_MAX_LENGTH + 1];
+  int bytes_printed;
+
+  va_list ap;
+  va_start (ap, format);
+  bytes_printed
+    = vsnprintf (ec, EXPANDED_SYSTEM_COMMAND_MAX_LENGTH + 1, format, ap);
+  va_end (ap);
+
+  assert (bytes_printed <= EXPANDED_SYSTEM_COMMAND_MAX_LENGTH);
+
+  return system (ec);
+}
+
+
 char *
 backtrace_with_line_numbers (void)
 {
-  char executable_name[PATH_MAX + 1];
-  ssize_t bytes_read;
-  int btrace_size;                 // Number of addresses
-  int return_code;
-  char temp_ba[PATH_MAX + 1] = "backtrace_addresses_XXXXXX";
-  int temp_ba_fd;   // File Descriptor for temp_ba
-  char temp_bt[PATH_MAX + 1] = "backtrace_text_XXXXXX";
-  int temp_bt_fd;   // File Descriptor for temp_bt
-  // FIXME: these next two are going away
-  // Backtrace Addresses (temporary file, initialized to template)
-  char ba[] = "/tmp/baXXXXXX";  
-  // Most Recent Backtrace Text (temporary file, initialized to template)
-  char bt[] = "/tmp/btXXXXXX";   // Most Recent Backtrace Text
-  int tfd;     // Temporary File Descriptor (reused for different files)
-  FILE *tfp;   // Trmporary FILE Pointer (reused for different things)
+  char exe_name[PATH_MAX + 1];    // Executable Name (name of calling program)
+  int btrace_size;                // Number of addresses
 #define BT_MAX_STACK 242
   void *btrace_array[BT_MAX_STACK];   // Actual addressess
-  int ii;      //  Index variable
-#define ADDR2LINE_COMMAND_MAX_LENGTH 242
-  char addr2line_command[ADDR2LINE_COMMAND_MAX_LENGTH + 1];
-  int bytes_printed;
+  int return_code;   // Return code for functions and executed programs
+  char tfba[PATH_MAX + 1] = "";   // Temporary file Backtrace Addresses
+  char tfbt[PATH_MAX + 1] = "";   // Temporary file Backtrace Text
+  int tfd;     // Temporary File Descriptor (reused for different files)
+  FILE *tfp;   // Trmporary FILE Pointer (reused for different things)
+  int ii;      // Index variable
   struct stat stat_buf;
-  char *result;
+  ssize_t bytes_read;
+  char *uresult, *result;   // Unbeautified result, result to be returned
+  int line_number;          // Line number of backtrace (for beautification)
+  ssize_t cci;              // Current Character Index
 
-  // Use /proc magic to find which executable we really are
-  bytes_read = readlink ("/proc/self/exe", executable_name, PATH_MAX + 1);
-  assert (bytes_read != -1);
-  assert (bytes_read <= PATH_MAX);      // Systems don't always honor PATH_MAX
-  executable_name[bytes_read] = '\0';   // Readlink doesn't do this for us
+  get_executable_name (exe_name);   // What executable are we really?
   
   // Get the actual backtrace
   btrace_size = backtrace (btrace_array, BT_MAX_STACK);
   assert (btrace_size < BT_MAX_STACK);
 
   // Create full temp file names and temp files
-  temp_ba_fd = file_open_tmp (temp_ba);
-  return_code = close (temp_ba_fd);
-  assert (return_code == 0);
-  temp_bt_fd = file_open_tmp (temp_bt);
-  return_code = close (temp_bt_fd);
-  assert (return_code == 0);
-
-  printf ("temp_ba: %s\n", temp_ba);
-  printf ("temp_bt: %s\n", temp_bt);
-
-  // FIXME: this next block is getting replaced
-  // Create temp files (filling in their actual names), close file descriptors
-  tfd = mkstemp (ba);
-  assert (tfd != -1);
+  strcpy (tfba, "backtrace_addresses_XXXXXX");
+  tfd = open_tmp_file (tfba);
   return_code = close (tfd);
   assert (return_code == 0);
-  tfd = mkstemp (bt);
-  assert (tfd != -1);
+  strcpy (tfbt, "backtrace_text_XXXXXX");
+  tfd = open_tmp_file (tfbt);
   return_code = close (tfd);
   assert (return_code == 0);
 
   // Print the addresses to the address file
-  tfp = fopen (ba, "w");
+  tfp = fopen (tfba, "w");
   assert (tfp != NULL);
   for ( ii = 1 ; ii < btrace_size ; ii++ ) {   // Skip 0 because that's us
-    fprintf (tfp, "%p\n", btrace_array[ii]);
+    // - 1 because we want the call site, not the return address.  This is a 
+    // heuristic and the caller could defeat it with a synthesized address.
+    fprintf (tfp, "%p\n", btrace_array[ii] - 1);
   } 
   return_code = fclose (tfp);
   assert (return_code == 0);
 
-  // Run addr2line to convert addresses to show func, file, line
-  bytes_printed
-    = snprintf (
-        addr2line_command,
-        ADDR2LINE_COMMAND_MAX_LENGTH + 1,
-        "addr2line --exe %s -f -i <%s >%s",
-        executable_name,
-        ba,
-        bt );
-  assert (bytes_printed <= ADDR2LINE_COMMAND_MAX_LENGTH);
-  return_code = system (addr2line_command);
+  return_code
+    = expand_system ("addr2line -e %s -f -i <%s >%s", exe_name, tfba, tfbt);
   assert (return_code == 0);
 
   // Get the size of the result
-  return_code = stat (bt, &stat_buf);
+  return_code = stat (tfbt, &stat_buf);
   assert (return_code == 0);
   
-  // Allocate storage for result
-  result = malloc (stat_buf.st_size + 1);   // +1 for trailing null byte
+  // Allocate storage for Unbeautified Result and actual result
+  uresult = malloc (stat_buf.st_size + 1);   // +1 for trailing null byte
+  assert (uresult != NULL);
+  uresult[0] = '\0';
+  // We're going to add some spaces, to keep life simple just use 2 * space.
+  // To make sure this string is always null-byte terminated as we grow it we
+  // use calloc and double check that null bytes are actully zeros :)
+  assert ((char) 0 == '\0');
+  result = calloc (1, 2 * stat_buf.st_size + 1);   // +1 for trailing null byte
   assert (result != NULL);
+  result[0] = '\0';
 
   // Read the func, file, line form back in
-  tfp = fopen (bt, "r");
+  tfp = fopen (tfbt, "r");
   assert (tfp != NULL);
-  bytes_read = fread (result, 1, stat_buf.st_size, tfp);
+  bytes_read = fread (uresult, 1, stat_buf.st_size, tfp);
   assert (bytes_read == stat_buf.st_size);
   result[stat_buf.st_size] = '\0';
   return_code = fclose (tfp);
   assert (return_code == 0);
 
+  // Slight beautification: indent the location lines (every other line)
+  line_number = 0;
+  for ( cci = 0 ; cci < bytes_read ; cci++ ) {
+    if ( uresult[cci] == '\n' ) {
+      line_number++;
+      if ( line_number % 2 == 1 ) {
+        strcat (result, "\n  ");
+        continue;
+      }
+    }
+    result[cci + 2 * ((line_number + 1) / 2)] = uresult[cci];
+  }
+
+  free (uresult);
+
   // Remove the temporary files
-  return_code = unlink (bt);
+  return_code = unlink (tfbt);
   assert (return_code == 0);
-  return_code = unlink (ba);
+  return_code = unlink (tfba);
   assert (return_code == 0);
 
   return result;
@@ -171,93 +209,47 @@ what_func (void *func_addr)
 {
   // I look long but I'm all simple stuff
 
-  char executable_name[PATH_MAX + 1] = "";
-  ssize_t bytes_read;
-  int bytes_printed;
-#define SYSTEM_COMMAND_MAX_LENGTH 442
-  char system_command[SYSTEM_COMMAND_MAX_LENGTH + 1] = "";
+  char exe_name[PATH_MAX + 1] = "";    // Name of current executable file
   char temp_file[PATH_MAX + 42] = "";  // 42 > strlen("/what_func_XXXXXX")
   int temp_file_fd;
   int return_code;
-  char *tmpdir_ev = NULL;   // TMPDIR Environment Variable value
   bool executable_not_stripped, library_not_stripped;
   bool exact_address_match;
+  char real_path_dli_fname[PATH_MAX], real_path_executable[PATH_MAX];
+  char *real_path_return;
+  bool dli_fname_is_not_executable;
 
-  // Use /proc magic to find which executable we really are
-  bytes_read = readlink ("/proc/self/exe", executable_name, PATH_MAX + 1);
-  assert (bytes_read != -1);
-  assert (bytes_read <= PATH_MAX);      // Systems don't always honor PATH_MAX
-  executable_name[bytes_read] = '\0';   // Readlink doesn't do this for us
+  get_executable_name (exe_name);   // What executable are we really?
 
   // If the executable has been stripped, abort().  The user should recompile.
-  bytes_printed
-    = snprintf (
-        system_command,
-        SYSTEM_COMMAND_MAX_LENGTH + 1,
-        "file %s | grep --quiet 'not stripped$'",
-        executable_name );
-  assert (bytes_printed <= SYSTEM_COMMAND_MAX_LENGTH);
-  // Careful: testing for grep no-match return code needs WEXITSTATUS()
-  executable_not_stripped = ! system (system_command);
+  // Careful: testing for grep no-match return code would need WEXITSTATUS()
+  executable_not_stripped
+    = !(expand_system ("file %s | grep --quiet 'not stripped$'", exe_name));
   assert (executable_not_stripped);
 
-  // Figure out appropriate temporary directory name to use
-  tmpdir_ev = getenv ("TMPDIR");
-  if ( tmpdir_ev != NULL ) {
-    assert (strlen (tmpdir_ev) <= PATH_MAX);   // PATH_MAX isn't dependable
-    strcpy (temp_file, tmpdir_ev);
-  }
-  if ( strlen (temp_file) == 0 ) {
-#ifdef P_tmpdir
-    strcpy (temp_file, P_tmpdir);
-#endif
-  }
-  if ( strlen (temp_file) == 0 ) {
-    strcpy (temp_file, "/tmp");
-  }
-
-  // Fill out the rest of the temporary file name
-  temp_file_fd = mkstemp (strcat (temp_file, "/what_func_XXXXXX"));
-  if ( temp_file_fd == -1 ) {
-    perror ("mkstemp failed");
-  }
-  assert (temp_file_fd != -1);
+  // Create new temporary file and close it's file descriptor
+  strcpy (temp_file, "what_func_XXXXXX");
+  temp_file_fd = open_tmp_file (temp_file);
   return_code = close (temp_file_fd);
   assert (return_code == 0);
 
-  // FIXME: move these demos of how to print individual values somewhere else
-  CP ();
-  TV (executable_not_stripped, %i);
-  TS ("executable_not_stripped: %i", executable_not_stripped);
-
   // Assemble and run the nm-based command to look up the function name and
   // location in the executable.
-  bytes_printed
-    = snprintf (
-        system_command,
-        SYSTEM_COMMAND_MAX_LENGTH + 1,
+  return_code
+    = expand_system (
         "nm --line-numbers --print-file-name --format=posix %s | "
         "grep `echo %p | perl -p -e 's/^0x//'` | "
         "perl -p -e 's/\\s+/ /g' | "
         "cut --delimiter=' ' --fields=2,6 | "
         "tee %s",
-        executable_name,
+        exe_name,
         func_addr,
         temp_file );
-  assert (bytes_printed <= SYSTEM_COMMAND_MAX_LENGTH);
-  return_code = system (system_command);
   // Careful: testing for grep no-match return code needs WEXITSTATUS()
   assert (return_code == 0);
  
   // If we found a match using nm on the executable, we're done.
-  bytes_printed
-    = snprintf (
-        system_command,
-        SYSTEM_COMMAND_MAX_LENGTH + 1,
-        "test -z \"`cat %s`\"",
-        temp_file );
-  assert (bytes_printed <= SYSTEM_COMMAND_MAX_LENGTH);
-  if ( system (system_command) != 0 ) {
+  if ( expand_system ("test -z \"`cat %s`\"", temp_file) != 0 ) {
     return_code = unlink (temp_file);
     assert (return_code == 0);
     return;
@@ -281,29 +273,32 @@ what_func (void *func_addr)
       dl_info.dli_sname,
       dl_info.dli_saddr,
       exact_address_match ? "" : "not " );
-  
-  // If the library has been stripped, abort().  Maybe the user can recompile.
-  bytes_printed
-    = snprintf (
-        system_command,
-        SYSTEM_COMMAND_MAX_LENGTH + 1,
+ 
+  // Check that the file name returned by dladdr() doesn't point back to the
+  // executable itself.  This can happen when client code is compiled without
+  // -fpic: see the dladdr() man page.
+  real_path_return  = realpath (dl_info.dli_fname, real_path_dli_fname);
+  assert (real_path_return != NULL);
+  real_path_return  = realpath (exe_name, real_path_executable);
+  assert (real_path_return != NULL);
+  dli_fname_is_not_executable
+    = strcmp (real_path_dli_fname, real_path_executable);
+  assert (dli_fname_is_not_executable); 
+
+  // If the library is stripped we're done.  Maybe the user can recompile.
+  return_code
+    = expand_system (
         "file `realpath %s` | grep --quiet 'not stripped$'",
         dl_info.dli_fname );
-  assert (bytes_printed <= SYSTEM_COMMAND_MAX_LENGTH);
-  // Careful: testing for grep no-match return code needs WEXITSTATUS()
-  library_not_stripped = ! system (system_command);
+  library_not_stripped = ! return_code;
   assert (library_not_stripped);
 
   // If we found an exact match for the given address, assemble and run the
-  // nm-based command to look up the function location in the source file for
-  // shared library.  Note that I'm not actually sure an exact match is even
-  // required, but to be conservative and not lie to the user it's required.
-  // FIXME: research this point
+  // nm-based command to look up the function location in the source file
+  // for the shared library.
   if ( exact_address_match ) {
-    bytes_printed
-      = snprintf (
-          system_command,
-          SYSTEM_COMMAND_MAX_LENGTH + 1,
+    return_code
+      = expand_system (
           "echo -n \"  Possible function and source location:\n    \" && "
           "nm --line-numbers --print-file-name --format=posix %s | "
           "grep ': %s ' | "
@@ -313,13 +308,18 @@ what_func (void *func_addr)
           dl_info.dli_fname,
           dl_info.dli_sname,
           temp_file );
-    assert (bytes_printed <= SYSTEM_COMMAND_MAX_LENGTH);
-    return_code = system (system_command);
     // Careful: testing for grep no-match return code needs WEXITSTATUS()
     assert (return_code == 0);
   }
-    
+  else {
+    // FIXME: research this point.  Is the name really wrong for example?
+    printf (
+        "  No exact address match: function location unknown, and the\n"
+        "  reported name might be wrong.");
+  }
+
   return_code = unlink (temp_file);
   assert (return_code == 0);
+
   return;
 }

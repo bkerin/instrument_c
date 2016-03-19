@@ -1,0 +1,39 @@
+
+Instrumentation Source Library
+==============================
+:nofooter:  // Prevent obnoxious "last modified" thing by not having footer
+
+There are really only two files to it.  You might prefer to just cut and paste.
+The header has a few useful macros worth grabbing if you go that route.  A
+test/demo driver is available for this interface is also available
+
+Download
+--------
+
+The download includes a small amount of supporting stuff to test it out.  Try
+`make run_instrument_test` from the unpacked directory.
+
+link:Download.html[Download]
+
+Browse
+------
+
+.instrument.h
+[source, C]
+----
+include::instrument.h[] 
+----
+
+.instrument.c
+[source, C]
+----
+include::instrument.c[]
+----
+
+.instrument_test.c
+If you want to see this test driver in operation you should download the tiny
+package containing the demo setup.
+[source, C]
+----
+include::instrument_test.c[]
+----
