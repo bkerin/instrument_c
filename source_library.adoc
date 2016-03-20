@@ -2,6 +2,7 @@
 Instrumentation Source Library
 ==============================
 :nofooter:  // Prevent obnoxious "last modified" thing by not having footer
+:source-highlighter: pygments
 
 There are really only two files to it.  You might prefer to just cut and paste.
 The header has a few useful macros worth grabbing if you go that route.  A
