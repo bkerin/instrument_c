@@ -5,7 +5,7 @@
 //   * -g is required at compile-time for backtraces and what_func() (and you
 //     must not strip binaries or libraries later)
 //
-//   * -fpic is required for library *AND* client compilation for what_func()
+//   * -fPIC is required for library *AND* client compilation for what_func()
 //     to work when looking up pointers to function in shared libraries
 //
 //   * -ldl is always required at link-time because dladdr() needs it

@@ -276,7 +276,7 @@ what_func (void *func_addr)
  
   // Check that the file name returned by dladdr() doesn't point back to the
   // executable itself.  This can happen when client code is compiled without
-  // -fpic: see the dladdr() man page.
+  // -fPIC: see the dladdr() man page.
   real_path_return  = realpath (dl_info.dli_fname, real_path_dli_fname);
   assert (real_path_return != NULL);
   real_path_return  = realpath (exe_name, real_path_executable);

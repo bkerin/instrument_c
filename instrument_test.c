@@ -46,7 +46,7 @@ main (void)
   CP ();
   TV (test_int, %i);
 #ifdef __GNUC__   // This one needs GNU comma-swallowing __VA_ARGS__ extension
-  TS ("test_int: %i, literal_string: %s", test_int, "42 also");
+  TS ("test_int: %i, literal_string: %s", test_int, "42 also :)");
 #endif
   printf ("\n");
 
