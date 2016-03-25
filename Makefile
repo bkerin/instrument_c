@@ -7,13 +7,24 @@ SOURCES = $(wildcard *.c)
 
 OBJS = $(patsubst %.c,%.o,$(SOURCES))
 
-# We use some GNU libc extension functions, and this serves as a example
+# Uncomment this to use ccache to avoid unnecessary recompilation.
+# For example, this Makefile uses a conservative build-too-much strategy
+# in which every object file depends on all headers and the Makefile.
+# The use of ccache mostly eliminates the build time penalty of this approach.
+#CCACHE = ccache
+
+# The GNU gold linker is exciting, because incremental linking could speed
+# up edit-compile-debug significantly for large projects.  Unfortunately
+# it isn't done as of this writing: it only works for x86_64 targets,
+# and it's output confuses the current nm and addr2line implementations.
+# Uncomment this and add it to the linking gcc invocations to try gold anyway.
+#INCR_LDFLAGS = -fuse-ld=gold -Wl,--incremental
+
+CC = $(CCACHE) gcc
+
+# We use some GNU libc extension functions.  This also serves as a example
 # of how to pass the same cpp flags to cflow as well as the compiler.
 CPPFLAGS = -D_GNU_SOURCE
-
-# Uncomment to enable incremental linking with gold.  It didn't work for me.
-# FIXME: try again once gold is better
-#INCR_LDFLAGS = -fuse-ld=gold -Wl,--incremental
 
 # Compilation of C files.  In real life client and library files are unlikely
 # to be compiled the same way, and automatic dependency tracking is often
@@ -21,20 +32,20 @@ CPPFLAGS = -D_GNU_SOURCE
 $(OBJS): %.o: %.c $(HEADERS) Makefile
 	# See the comments in instrument.h for the reasons for these options
 	# and for the double build.
-	gcc -c $(CPPFLAGS) -Wall -Wextra -Werror -g -O2 -fPIC $< -o $@
-	gcc -c $(CPPFLAGS) -Wall -Wextra -Werror -g -O0 -fPIC $< -o $@
+	$(CC) -c $(CPPFLAGS) -Wall -Wextra -Werror -g -O2 -fPIC $< -o $@
+	$(CC) -c $(CPPFLAGS) -Wall -Wextra -Werror -g -O0 -fPIC $< -o $@
 
 # Shared library for demonstration purposes
 libdemo_shared_lib.so: demo_shared_lib.o
 	# See the Program Library Howto for a real life shared lib/DLL setup
-	gcc -Wl,-soname,$@ -fPIC -rdynamic -shared $< -o $@
+	$(CC) -Wl,-soname,$@ -fPIC -rdynamic -shared $< -o $@
 
 # FIXME: maybe use -fPIE for the executables if -fPIC won't work reliable?
 
 # Executable program exercising instrument.h
 instrument_test: instrument_test.o instrument.o libdemo_shared_lib.so
 	# See the Program Library Howto for a real life shared lib/DLL setup
-	gcc -Wl,-rpath,`pwd` -fPIC $+ -ldl -o $@
+	$(CC) -Wl,-rpath,`pwd` -fPIC $+ -ldl -o $@
 
 .PHONY: run_instrument_test
 run_instrument_test: instrument_test

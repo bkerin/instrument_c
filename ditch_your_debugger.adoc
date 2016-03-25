@@ -53,15 +53,27 @@ valgrind --leak-check=yes --undef-value-errors=no ./my_exe my_exe_arg 2>&1 | tee
 
 * A decent build system, i.e. one that can rebuild your program fast.  You want
   this anyway: trying to work around a slow build system with a debugger is
-  unpleasant at best.  The FIXME:<<ccache>> program may be useful FIXME: remove
-  this mention of it if it doesn't start building right for me after upgrad.
-  FIXME: including in situation where the build system builds too much?.
-  FIXME: remove mention of this if it doesn't start working for me The GNU
-  <binutils> also include a new linker called FIXME:<<gold>> that supports
-  incremental linking and is generally faster.  As of this writing is isn't
-  built by default, but needs the `--enable-gold` `./configure` option.  FIXME:
-  how to enable gold and incremental linand is generally faster.  FIXME: how to
-  enable gold and incremental link.  significantly faster than the old one.
+  unpleasant at best.  There are several things that may help with this:
+
+  ** The link:https://ccache.samba.org[ccache] program automatically caches
+     the results of compilation commands and reuses them when appropriate.
+     It's particularly helpful when your build system is less than brilliant at
+     figuring out what needs to be done.  It's extremely simple to use: just
+     replacing `gcc` with `ccache gcc` in your compilation recipes generally
+     does the trick.  See the `Makefile` in the
+     <<source_library.adoc#, source library>> for an example.
+
+  ** The link:https://www.gnu.org/software/binutils/[GNU binutils] include a 
+     new linker called `gold`.  It's not ready for prime time yet IMO, but it's
+     worth watching.  See the `Makefile` in the
+     <<source_library.adoc#, source library>> for details.
+
+  ** The GNU link:https://www.gnu.org/software/automake/[automake] and
+     link:http://www.gnu.org/software/autoconf/autoconf.html[autoconf] systems
+     can add accurate dependency tracking to your program automatically,
+     making it easy to avoid pointless rebuilding.  Unfortunately they aren't
+     simple to use generally, but if you know you're headed in that direction
+     anyway it might be worth adopting them sooner rather than later.
 
 It sounds like a lot to sort out, but it's mostly easy and you get a much
 better result.  All of the above stuff can be expanded in arbitrary directions.
