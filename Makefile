@@ -17,7 +17,7 @@ OBJS = $(patsubst %.c,%.o,$(SOURCES))
 # up edit-compile-debug significantly for large projects.  Unfortunately
 # it isn't done as of this writing: it only works for x86_64 targets,
 # and it's output confuses the current nm and addr2line implementations.
-# Uncomment this and add it to the linking gcc invocations to try gold anyway.
+# Uncomment this and add it to the gcc linking invocations to try gold anyway.
 #INCR_LDFLAGS = -fuse-ld=gold -Wl,--incremental
 
 CC = $(CCACHE) gcc
@@ -26,9 +26,9 @@ CC = $(CCACHE) gcc
 # of how to pass the same cpp flags to cflow as well as the compiler.
 CPPFLAGS = -D_GNU_SOURCE
 
-# Compilation of C files.  In real life client and library files are unlikely
-# to be compiled the same way, and automatic dependency tracking is often
-# used to computer .c->.h dependencies.
+# Object files.  In real life client and library files aren't usually
+# compiled in the same make recipe, and automatic dependency tracking is
+# often used to compute .c->.h dependencies.
 $(OBJS): %.o: %.c $(HEADERS) Makefile
 	# See the comments in instrument.h for the reasons for these options
 	# and for the double build.
@@ -38,14 +38,12 @@ $(OBJS): %.o: %.c $(HEADERS) Makefile
 # Shared library for demonstration purposes
 libdemo_shared_lib.so: demo_shared_lib.o
 	# See the Program Library Howto for a real life shared lib/DLL setup
-	$(CC) -Wl,-soname,$@ -fPIC -rdynamic -shared $< -o $@
+	$(CC) -Wl,-soname,$@ -rdynamic -shared $< -o $@
 
-# FIXME: maybe use -fPIE for the executables if -fPIC won't work reliable?
-
-# Executable program exercising instrument.h
+# Executable program exercising the instrument.h interface
 instrument_test: instrument_test.o instrument.o libdemo_shared_lib.so
 	# See the Program Library Howto for a real life shared lib/DLL setup
-	$(CC) -Wl,-rpath,`pwd` -fPIC $+ -ldl -o $@
+	$(CC) -Wl,-rpath,`pwd` $+ -ldl -o $@
 
 .PHONY: run_instrument_test
 run_instrument_test: instrument_test
