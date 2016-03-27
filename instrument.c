@@ -312,7 +312,10 @@ what_func (void *func_addr)
     assert (return_code == 0);
   }
   else {
-    // FIXME: research this point.  Is the name really wrong for example?
+    // FIXME: research this point.  Is the name really wrong in this case?
+    // Might nm actually succeed anyway?  Afterall it's searching by symbol
+    // name, not by address.  dladdr() presumably provides address of nearest
+    // symbol for some reason, rather than just failing.
     printf (
         "  No exact address match: function location unknown, and the\n"
         "  reported name might be wrong.");

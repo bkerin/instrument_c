@@ -24,7 +24,7 @@
 // extensions we need are included for the *first* time.  This means using the
 // -D_GNU_SOURCE gcc option or maybe config.h (if it's always included first).
 #ifndef _GNU_SOURCE
-#  error interface requires GNU libc extensions but _GNU_SOURCE is not defined
+#  error GNU libc extensions are required but _GNU_SOURCE is not defined
 #endif
 
 #include <errno.h>
