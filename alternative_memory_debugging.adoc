@@ -1,0 +1,43 @@
+
+Alternative Memory Debugging
+============================
+:nofooter:  // Prevent obnoxious "last modified" thing by not having footer
+
+The link:http://valgrind.org[valgrind] program does a really good job finding
+memory bugs.  But if for some reason you don't want to use it there are some
+alternatives:
+
+* Create wrappers for `malloc()`, `calloc()`, `free()` etc. that print what
+they're doing when they run.  This statety is probably most useful when you're
+starting with strong suspiciouns about which calls are involved in a problem --
+just substitute wrapper calls for the suspects.
+ 
+* Define macros called `malloc()`, `calloc()` etc. that call wrapper functions
+defined as described above.  This strategy can be used to easily substitute
+your wrappers for all calls wherever these macros are defined.  This approach
+will fail if your program takes the addresses of the real allocation functions.
+Note also that problems involving allocators in libraries (e.g. strdup
+
+* Use the GNU `ld` `--wrap` option.  This approach will work even if your
+program takes the address of the real allocation functions.  The disadvantage
+is that it's link-wide, so cannot be applied selectively to particularly
+suspicious call sites.  Calls from libraries (e.g. libc's
+`strdup()` will not be intercepted.  Bonus hint: following the example in the
+`ld` documentation, it's useful to also declare `__real_malloc()` like so:
++
+[source, c]
+----
+void *__real_malloc (size_t size);
+----
++
+This will prevent compile-time warnings about implicit declaration.
+
+* I _do not_ recommend using malloc interposition libraries, for the reasons
+described
+link:https://blogs.oracle.com/quenelle/entry/malloc_interposition_can_t_possibly[here].
+Wrappers are fine, things that don't ultimately call exactly the allocation
+routines they're replacing at each call site not so much.
+
+Note that memory problems frequently involve allocatin in other libraries (e.g.
+libc's `strdup()`).  The set of functions that you end up needing to instrument
+can be annoyingly large.

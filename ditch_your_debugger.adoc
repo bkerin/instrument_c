@@ -24,59 +24,62 @@ printf ("%s:%i:%s: checkpoint\n", __FILE__, __LINE__, __func__);
 ----
 
 * A way to get a backtrace.  The (GNU-specific) `backtrace()` and
-  `backtrace_symbols()` functions together with the `addr2line` program can do
-  this.  See the `backtrace_with_line_numbers()` function or `BT_ASSERT()`
-  macro from the <<source_library.adoc#, source library>>.  For this to
-  work well you have to use the right compiler options as documented in the
-  header.
+`backtrace_symbols()` functions together with the `addr2line` program can do
+this.  See the `backtrace_with_line_numbers()` function or `BT_ASSERT()` macro
+from the <<source_library.adoc#, source library>>.  You should use certain
+compiler options as documented in `instrument.h` in the source library.
   
 * A way to look up the function and source location pointed to by a function
-  pointer, so you can use instrumentation to find out what's going to be called
-  from a given point at run time.  See `what_func()` from the
-  <<source_library.adoc#, source library>> which does this using the nm
-  program and dladdr() function.  For this to work well you have to use the
-  right compiler options as documented in the header.
+pointer, so you can use instrumentation to find out what's going to be called
+from a given point at run time.  See `what_func()` from the
+<<source_library.adoc#, source library>> which does this using the nm program
+and dladdr() function.  You should use the certain compiler options as
+documented in `instrument.h` in the source library.
 
-* A strategy for dealing with memory errors.  I use valgrind like this:
+* A strategy for dealing with memory errors.  I use
+link:http://valgrind.org[valgrind] like this:
 +
 [source, sh]
 ----
 valgrind --leak-check=yes --undef-value-errors=no ./my_exe my_exe_arg 2>&1 | tee /tmp/valgrind_log
 ----
+Admittedly valgrind looks sort of like a debugger.  But you don't have to
+operate _inside_ it.  Still, purists may prefer
+<<alternative_memory_debugging.adoc#, these options>>.
 
 * A strategy for exploring your program's call tree and sources statically.  I
-  use vim and cscope for C, and <GNU global> or <exuberant ctags> for other
-  things.  For whole-system exploration I like the HTML call graph and linked
-  source that <GNU Global> produces.  The <<source_library.adoc#, source
-  library>> includes an example of how to integrate cflow and global into your
-  build system (in `Makefile` and `cflow_and_global.mk`).
+use link:http://www.vim.org[vim] and link:http://cscope.sourceforge.net[cscope]
+for C, and link:https://www.gnu.org/software/global/[GNU global] or
+link:http://ctags.sourceforge.net[exuberant ctags] for other
+things.  For whole-system exploration I like the HTML call graph and linked
+sources that link:https://www.gnu.org/software/global/[global] produces.
+The <<source_library.adoc#, source library>> includes an example of how to
+integrate link:http://www.gnu.org/software/cflow/[GNU cflow] and
+link:https://www.gnu.org/software/global/[global] into your build system (in
+`Makefile` and `cflow_and_global.mk` files).
 
-* A decent build system, i.e. one that can rebuild your program fast.  You want
-  this anyway: trying to work around a slow build system with a debugger is
-  unpleasant at best.  There are several things that may help with this:
+* A decent build system, i.e. one that can rebuild your program fast.  There
+are several things that may help with this:
 
-  ** The link:https://ccache.samba.org[ccache] program automatically caches
-     the results of compilation commands and reuses them when appropriate.
-     It's particularly helpful when your build system is less than brilliant at
-     figuring out what needs to be done.  It's extremely simple to use: just
-     replacing `gcc` with `ccache gcc` in your compilation recipes generally
-     does the trick.  See the `Makefile` in the
-     <<source_library.adoc#, source library>> for an example.
+** The link:https://ccache.samba.org[ccache] program caches the results of
+compilation commands and reuses them when appropriate.  It's particularly
+helpful when your build system often rebuilds too much.  It's simple to use:
+just replacing `gcc` with `ccache gcc` in your compilation recipes is usually
+enough.  See the `Makefile` in the <<source_library.adoc#, source library>> for
+an example.
 
-  ** The link:https://www.gnu.org/software/binutils/[GNU binutils] include a 
-     new linker called `gold`.  It's not ready for prime time yet IMO, but it's
-     worth watching.  See the `Makefile` in the
-     <<source_library.adoc#, source library>> for details.
+** GNU link:https://www.gnu.org/software/binutils/[binutils] includes a new
+linker called `gold`.  It's not ready for prime time yet IMO, but it's worth
+watching.  See the `Makefile` in the <<source_library.adoc#, source library>>
+for details.
 
-  ** The GNU link:https://www.gnu.org/software/automake/[automake] and
-     link:http://www.gnu.org/software/autoconf/autoconf.html[autoconf] systems
-     can add accurate dependency tracking to your program automatically,
-     making it easy to avoid pointless rebuilding.  Unfortunately they aren't
-     simple to use generally, but if you know you're headed in that direction
-     anyway it might be worth adopting them sooner rather than later.
+** The GNU link:https://www.gnu.org/software/automake/[automake] and
+link:http://www.gnu.org/software/autoconf/autoconf.html[autoconf] systems can
+add dependency tracking to your program automatically.  Unfortunately they
+aren't simple to use generally, but if you know you're headed in that direction
+anyway it might be worth adopting them sooner rather than later.
 
-It sounds like a lot to sort out, but it's mostly easy and you get a much
-better result.  All of the above stuff can be expanded in arbitrary directions.
-If you need to write some code to visualize your data you can do so in the most
-natural way, using the language at hand.  You aren't locked in the little box
-that the debugger provides.
+The above stuff can be extended arbitrarily.  If you need to write some code to
+visualize your data you can do so in the most natural way using the language at
+hand, without any discontinuity between your basic approach and those
+extensions.  You aren't locked in the little box that the debugger provides.

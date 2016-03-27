@@ -1,3 +1,4 @@
 *.html
 *.tar.gz
+*.stamp
 instrument_test

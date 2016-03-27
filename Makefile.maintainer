@@ -13,6 +13,9 @@ $(HTML_FILES): %.html: %.adoc Makefile.maintainer
 	# Here's how to not use a style sheet:
 	#asciidoctor -a stylesheet! $<
 
+all_html_files.stamp: $(HTML_FILES)
+	touch $@
+
 GIT_DESCRIPTION = `git describe --dirty --tags --always`
 
 # Files to be shipped in the release tarball (i.e. non-maintainer-only files)
@@ -55,4 +58,4 @@ upload: upload_tarball upload_html
 
 .PHONY: clean
 clean:
-	rm -f *.tar.gz $(HTML_FILES)
+	rm -f *.tar.gz all_html_files.stamp $(HTML_FILES)
