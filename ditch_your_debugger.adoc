@@ -7,9 +7,12 @@ Ditch Your Debugger
 
 Here's <<why_debuggers_are_bad.adoc#, why debuggers are bad>>.
 
-This article describes an alternative approach.  There's also a tiny
+This article describes an alternative approach.  There's a tiny
 <<source_library.adoc#, source library>> (just a single .c/.h pair) that
 implements some of these ideas, and an optional demo setup for it.
+
+_Study_ first, _then_ type.  The items below are best used to test beliefs, not
+create them.
 
 Things You Need to Avoid the Debugger
 -------------------------------------
@@ -23,18 +26,16 @@ Things You Need to Avoid the Debugger
 printf ("%s:%i:%s: checkpoint\n", __FILE__, __LINE__, __func__);
 ----
 
-* A way to get a backtrace.  The (GNU-specific) `backtrace()` and
-`backtrace_symbols()` functions together with the `addr2line` program can do
-this.  See the `backtrace_with_line_numbers()` function or `BT_ASSERT()` macro
-from the <<source_library.adoc#, source library>>.  You should use certain
-compiler options as documented in `instrument.h` in the source library.
+* A way to get a backtrace.  The (GNU-specific) `backtrace()` function and the
+`addr2line` program can do this.  See the `backtrace_with_line_numbers()`
+function or `BT_ASSERT()` macro from the
+<<source_library.adoc#, source library>>.
   
 * A way to look up the function and source location pointed to by a function
 pointer, so you can use instrumentation to find out what's going to be called
 from a given point at run time.  See `what_func()` from the
 <<source_library.adoc#, source library>> which does this using the nm program
-and dladdr() function.  You should use the certain compiler options as
-documented in `instrument.h` in the source library.
+and dladdr() function.
 
 * A strategy for dealing with memory errors.  I use
 link:http://valgrind.org[valgrind] like this:
@@ -43,9 +44,9 @@ link:http://valgrind.org[valgrind] like this:
 ----
 valgrind --leak-check=yes --undef-value-errors=no ./my_exe my_exe_arg 2>&1 | tee /tmp/valgrind_log
 ----
-Admittedly valgrind looks sort of like a debugger.  But you don't have to
-operate _inside_ it.  Still, purists may prefer
-<<alternative_memory_debugging.adoc#, these options>>.
+Valgrind looks sort of like a debugger, but you don't have to
+operate _inside_ it.  There are 
+<<alternative_memory_debugging.adoc#, other options>>, however.
 
 * A strategy for exploring your program's call tree and sources statically.  I
 use link:http://www.vim.org[vim] and link:http://cscope.sourceforge.net[cscope]
@@ -79,7 +80,7 @@ add dependency tracking to your program automatically.  Unfortunately they
 aren't simple to use generally, but if you know you're headed in that direction
 anyway it might be worth adopting them sooner rather than later.
 
-The above stuff can be extended arbitrarily.  If you need to write some code to
+This stuff can be extended arbitrarily.  If you need to write some code to
 visualize your data you can do so in the most natural way using the language at
-hand, without any discontinuity between your basic approach and those
-extensions.  You aren't locked in the little box that the debugger provides.
+hand, without any discontinuity between your basic instrumentation and those
+extensions.

@@ -18,6 +18,7 @@ OBJS = $(patsubst %.c,%.o,$(SOURCES))
 # it isn't done as of this writing: it only works for x86_64 targets,
 # and it's output confuses the current nm and addr2line implementations.
 # Uncomment this and add it to the gcc linking invocations to try gold anyway.
+# FIXMELATER: enable this someday
 #INCR_LDFLAGS = -fuse-ld=gold -Wl,--incremental
 
 CC = $(CCACHE) gcc

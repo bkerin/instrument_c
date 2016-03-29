@@ -50,7 +50,8 @@
 
 // Get a new string containing a backtrace for the call point.  This is
 // done using the GNU libc backtrace() function and the addr2line program.
-// On error an assertion violation is triggered.  
+// See the notes above about required compiler options.  On error an assertion
+// violation is triggered.  
 //
 // Caveats:
 //
@@ -60,7 +61,7 @@
 //   * This function doesn't make any effort to backtrace through separate
 //     (shared or dynamically loaded) libraries.  In theory it could.
 //
-//   * Use from signal handlers may cause weird results.
+//   * Use from signal handlers probably doesn't work.
 //
 char *
 backtrace_with_line_numbers (void);
@@ -96,10 +97,11 @@ backtrace_with_line_numbers (void);
 #endif
 
 // Print to stdout a best guess about the function name and source code
-// location corresponding to func_addr.  First an attempt is made to look up
-// the address in the current binary using the nm program, and if that doesn't
-// find anything dladdr() is used to find the correct shared library and nm
-// is used on that.  If things appear to have been compiled or stripped such
+// location corresponding to func_addr.  See the notes above about required
+// compiler options.  First an attempt is made to look up the address
+// in the current binary using the nm program, and if that doesn't find
+// anything dladdr() is used to find the correct shared library and nm is
+// used on that.  If things appear to have been compiled or stripped such
 // that this function cannot succeed an assertion violation is triggered.
 // On error an assertion violation is triggered.
 void

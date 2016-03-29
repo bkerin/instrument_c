@@ -16,6 +16,10 @@ $(HTML_FILES): %.html: %.adoc Makefile.maintainer
 all_html_files.stamp: $(HTML_FILES)
 	touch $@
 
+.PHONY: view_document_root
+view_document_root: all_html_files.stamp
+	$(WEB_BROWSER) ditch_your_debugger.html
+
 GIT_DESCRIPTION = `git describe --dirty --tags --always`
 
 # Files to be shipped in the release tarball (i.e. non-maintainer-only files)

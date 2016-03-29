@@ -256,6 +256,9 @@ what_func (void *func_addr)
   }
 
   // Try using dladdr() to find the function in a shared library.
+  // FIXMELATER: there's also dladdr1() in recent GNU libc that can give a lot
+  // more information about the found symbol or file, and therefore could
+  // probably be made to do a better job reporting on anything found.
   printf (
       "Didn't find a function with that address in executable, will now try\n"
       "dladdr().  See the caveats in the dladdr() man page.\n" );
