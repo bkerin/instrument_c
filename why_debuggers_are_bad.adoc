@@ -1,0 +1,57 @@
+
+Why Debuggers Are Bad
+=====================
+:nofooter:  // Prevent obnoxious "last modified" thing by not having footer
+
+Linus and many others have ranted a lot about how debuggers tend to be used as
+a substitute for comprehension, for writing comprehensible code, etc.  Yeah
+yeah, just about anything _can_ be used for evil.  Here are the real problems
+with debuggers:
+
+* They force you to learn and remember yet another syntax for (essentially)
+things like printf and if-then.  Working memory is highly correlated with
+general intelligence, so spending it on debugger details probably makes you
+dumber right when you need to be smart.  The built-in language constructs (e.g.
+printf) are in your long-term memory, which makes them cheap to use in
+comprehensional terms.  In theory you could learn the debugger just as well,
+but see the next item.
+
+* Modern systems tend to include components written in 2-5 different languages.
+They might each have their own debuggers.  Oh joy, 4 more ways to say printf.
+One could argue that software systems should not be written in multiple
+languages, but besides being theoretical this probably isn't true:
+domain-specific languages and the corresponding division of system components
+by language are probably beneficial to comprehension overall.  The debugger
+details on the other hand don't support any particular part of the system or
+modularize any of the knowledge required.
+
+* Debuggers are often useless for the hardest kind of bugs, so you end up 
+writing instrumentation code anyway.  Consider for example a satellite orbit
+predictor that sometimes produces slightly wrong results due to rounding error.
+To diagnose and fix this you may need to write code to displays graphs,
+experiment with different floating point sizes, etc.  Doing that requires
+additional code in the project language.  So you end up with a discontinuity
+between your simple instrumentation (e.g. printf spelled in debugger-ese) and
+your more complex domain-specific instrumentation.  That wastes mental enery.
+This point applies less (but usually still somewhat) to eval-type debuggers,
+but in that situation the debugger is normally no faster than the regular
+interpreter anyway, so what's the point?
+
+* Debuggers can produce run-time situations that cannot be replicated.  The
+advantage of run-time manipulation of values (which is small anyway IMO) is
+mostly destroyed by this problem.  It demands yet more of your working memory
+to make sure you remember the new state you've created by making a dynamic
+change.  If you have a decent (i.e. fast) build system and perhaps something
+like `git-worktree` or `cp -r` the development tools can help you remember the
+state.
+
+* Most debuggers don't work well across targets even when the language is the
+same (e.g. desktop vs. phone vs. microcontroller).  Uh oh, here come more ways
+to say printf.
+
+* Debuggers have bugs.  Not often but when they do it can really hurt, because
+you're probably trusting them pretty hard.  Debuggers have way more bugs than
+printf() and often more than more elaborate instrumentation tools like the GNU
+libc backtrace() function.  Instrumentation code is more inspectable than the
+internals of the debugger, and you're probably more likely to check it for
+problems.
