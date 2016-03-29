@@ -525,3 +525,17 @@ body.manpage div.sectionbody {
 @media print {
   body.manpage div#toc { display: none; }
 }
+
+/* Updates needed according to asciidoctor author to make this style sheet
+ * work well for asciidoctor.  */
+
+#toc > ol { padding-left: 0; }
+#toc ol { list-style-type: none; }
+
+pre.highlight { border: none; background-color: #F8F8F8; }
+pre.highlight code, pre.highlight pre { color: #333; }
+pre.highlight span.line-numbers { display: inline-block; margin-right: 4px; padding: 1px 4px; }
+pre.highlight .line-numbers { background-color: #D5F6F6; color: gray; }
+pre.highlight .line-numbers pre { color: gray; }
+
+pre code { background-color: #F8F8F8; padding: 0; }
