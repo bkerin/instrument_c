@@ -59,7 +59,8 @@
 //     it.  If it looks like this function is lying to you it probably is.
 //
 //   * This function doesn't make any effort to backtrace through separate
-//     (shared or dynamically loaded) libraries.  In theory it could.
+//     (shared or dynamically loaded) libraries.  FIXMELATER: In theory it
+//     could.
 //
 //   * Use from signal handlers probably doesn't work.
 //

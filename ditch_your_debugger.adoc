@@ -34,7 +34,7 @@ function or `BT_ASSERT()` macro from the
 * A way to look up the function and source location pointed to by a function
 pointer, so you can use instrumentation to find out what's going to be called
 from a given point at run time.  See `what_func()` from the
-<<source_library.adoc#, source library>> which does this using the nm program
+<<source_library.adoc#, source library>> which does this using the `nm` program
 and dladdr() function.
 
 * A strategy for dealing with memory errors.  I use
@@ -70,15 +70,15 @@ enough.  See the `Makefile` in the <<source_library.adoc#, source library>> for
 an example.
 
 ** GNU link:https://www.gnu.org/software/binutils/[binutils] includes a new
-linker called `gold`.  It's not ready for prime time yet IMO, but it's worth
-watching.  See the `Makefile` in the <<source_library.adoc#, source library>>
-for details.
+linker called `gold`.  It can do incremental linking, which is much faster for
+large projects.  See the `Makefile` in the <<source_library.adoc#, source
+library>> for details.
 
 ** The GNU link:https://www.gnu.org/software/automake/[automake] and
 link:http://www.gnu.org/software/autoconf/autoconf.html[autoconf] systems can
-add dependency tracking to your program automatically.  Unfortunately they
-aren't simple to use generally, but if you know you're headed in that direction
-anyway it might be worth adopting them sooner rather than later.
+add dependency tracking to your program automatically.  They aren't simple to
+use generally, but if you know you're headed in that direction anyway it might
+be worth adopting them sooner rather than later.
 
 This stuff can be extended arbitrarily.  If you need to write some code to
 visualize your data you can do so in the most natural way using the language at

@@ -16,9 +16,11 @@ OBJS = $(patsubst %.c,%.o,$(SOURCES))
 # The GNU gold linker is exciting, because incremental linking could speed
 # up edit-compile-debug significantly for large projects.  Unfortunately
 # it isn't done as of this writing: it only works for x86_64 targets,
-# and it's output confuses the current nm and addr2line implementations.
-# Uncomment this and add it to the gcc linking invocations to try gold anyway.
-# FIXMELATER: enable this someday
+# and it's output confuses the current nm and addr2line implementations:
+# they produce incorrect DWARF version warnings (a patch is in the works).
+# Uncomment this to try gold anyway.  Note that --incremental is not really
+# intended to be used for production releases, only for development, so
+# you'll want to arrange for your final production build to ommit it.
 #INCR_LDFLAGS = -fuse-ld=gold -Wl,--incremental
 
 CC = $(CCACHE) gcc
@@ -39,12 +41,12 @@ $(OBJS): %.o: %.c $(HEADERS) Makefile
 # Shared library for demonstration purposes
 libdemo_shared_lib.so: demo_shared_lib.o
 	# See the Program Library Howto for a real life shared lib/DLL setup
-	$(CC) -Wl,-soname,$@ -rdynamic -shared $< -o $@
+	$(CC) $(INCR_LDFLAGS) -Wl,-soname,$@ -rdynamic -shared $< -o $@
 
 # Executable program exercising the instrument.h interface
 instrument_test: instrument_test.o instrument.o libdemo_shared_lib.so
 	# See the Program Library Howto for a real life shared lib/DLL setup
-	$(CC) -Wl,-rpath,`pwd` $+ -ldl -o $@
+	$(CC) $(INCR_LDFLAGS) -Wl,-rpath,`pwd` $+ -ldl -o $@
 
 .PHONY: run_instrument_test
 run_instrument_test: instrument_test
