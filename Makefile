@@ -14,10 +14,10 @@ OBJS = $(patsubst %.c,%.o,$(SOURCES))
 #CCACHE = ccache
 
 # The GNU gold linker is exciting, because incremental linking could speed
-# up edit-compile-debug significantly for large projects.  Unfortunately
-# it isn't done as of this writing: it only works for x86_64 targets,
-# and it's output confuses the current nm and addr2line implementations:
-# they produce incorrect DWARF version warnings (a patch is in the works).
+# up edit-compile-debug significantly for large projects.  Unfortunately it
+# isn't done as of this writing: it only works for x86_64 targets, and
+# its output confuses the current nm and addr2line implementations (they
+# produce incorrect DWARF version warnings and may have other issues).
 # Uncomment this to try gold anyway.  Note that --incremental is not really
 # intended to be used for production releases, only for development, so
 # you'll want to arrange for your final production build to ommit it.
