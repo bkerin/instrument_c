@@ -47,6 +47,8 @@ WDIR = public_html/instrument
 .PHONY: upload_tarball
 upload_tarball: RELEASES_SCP_DIR = $(WHOST):$(WDIR)/releases/
 upload_tarball: tarball
+	# scp give a confusing warning if target dir !exist, so check first
+	ssh $(WHOST) test -d $(RELEASES_SCP_DIR)
 	scp instrument-$(VERSION).tar.gz $(RELEASES_SCP_DIR)
 
 # NOTE: we aren't religious about making sure the uploaded HTML corresponds
