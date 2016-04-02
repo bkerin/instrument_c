@@ -1,0 +1,10 @@
+
+instrument.h -- Interface to the Instrumentation Module
+=======================================================
+:nofooter:  // Prevent obnoxious "last modified" thing by not having footer
+:source-highlighter: pygments
+
+[source, C]
+----
+include::instrument.h[] 
+----

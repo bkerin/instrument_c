@@ -14,10 +14,18 @@ Download
 The download includes a small amount of supporting stuff for compile/test.  Try
 `make run_instrument_test` from the unpacked directory.
 
-link:Download.html[Download]
+link:releases/[Download]
 
 Browse
 ------
+
+* <<instrument.h.adoc#, instrument.h>> -- Interface
+
+* <<instrument.c.adoc#, instrument.c>> -- Implementation
+
+* <<instrument_test.c.adoc#, instrument_test.c>> -- Test/Demo driver.
+link:releases/[Download the tarball] if you
+actaully want to run this.
 
 .instrument.h
 [source, C]

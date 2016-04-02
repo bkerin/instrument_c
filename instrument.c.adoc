@@ -1,0 +1,10 @@
+
+instrument.c -- Implementation of the Instrumentation Module
+============================================================
+:nofooter:  // Prevent obnoxious "last modified" thing by not having footer
+:source-highlighter: pygments
+
+[source, C]
+----
+include::instrument.c[] 
+----
