@@ -47,12 +47,15 @@ WDIR = public_html/instrument
 .PHONY: upload_tarball
 upload_tarball: RELEASES_DIR = $(WDIR)/releases/
 upload_tarball: RELEASES_SCP_TARGET = $(WHOST):$(RELEASES_DIR)
+upload_tarball: RELEASE_FILE = instrument-$(VERSION).tar.gz
+upload_tarball: RELEASE_PATH = $(RELEASES_DIR)/$(RELEASE_FILE)
+upload_tarball: LATEST_LINK_PATH = $(RELEASES_DIR)/LATEST_IS_$(RELEASE_FILE)
 upload_tarball: tarball
 	# scp give a confusing warning if target dir !exist, so check first
 	ssh $(WHOST) test -d $(RELEASES_DIR)
 	scp instrument-$(VERSION).tar.gz $(RELEASES_SCP_TARGET)
 	ssh $(WHOST) rm -f '$(WDIR)/LATEST_IS_*'
-	ssh $(WHOST) ln -s $(WDIR)/instrument-$(VERSION).tar.gz $(WDIR)/LATEST_IS_instrument-$(VERSION).tar.gz
+	ssh $(WHOST) ln -s $(RELEASES_PATH) $(LATEST_LINK_PATH)
 
 # NOTE: we aren't religious about making sure the uploaded HTML corresponds
 # to any particular git-tagged release.
