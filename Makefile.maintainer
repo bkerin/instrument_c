@@ -55,7 +55,7 @@ upload_tarball: tarball
 	ssh $(WHOST) test -d $(RELEASES_DIR)
 	scp instrument-$(VERSION).tar.gz $(RELEASES_SCP_TARGET)
 	ssh $(WHOST) rm -f '$(WDIR)/LATEST_IS_*'
-	ssh $(WHOST) ln -s $(RELEASE_PATH) $(LATEST_LINK_PATH)
+	ssh $(WHOST) ln -s $(RELEASE_FILE) $(LATEST_LINK_PATH)
 
 # NOTE: we aren't religious about making sure the uploaded HTML corresponds
 # to any particular git-tagged release.
