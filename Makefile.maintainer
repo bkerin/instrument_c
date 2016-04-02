@@ -54,7 +54,7 @@ upload_tarball: tarball
 	# scp give a confusing warning if target dir !exist, so check first
 	ssh $(WHOST) test -d $(RELEASES_DIR)
 	scp instrument-$(VERSION).tar.gz $(RELEASES_SCP_TARGET)
-	ssh $(WHOST) rm -f '$(WDIR)/LATEST_IS_*'
+	ssh $(WHOST) rm -f '$(RELEASES_DIR)/LATEST_IS_*'
 	ssh $(WHOST) ln -s $(RELEASE_FILE) $(LATEST_LINK_PATH)
 
 # NOTE: we aren't religious about making sure the uploaded HTML corresponds
