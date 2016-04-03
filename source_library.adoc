@@ -22,8 +22,8 @@ Browse
 * <<instrument.h.adoc#, instrument.h>> -- Interface
 * <<instrument.c.adoc#, instrument.c>> -- Implementation
 * <<instrument_test.c.adoc#, instrument_test.c>> -- Test/Demo driver.
-link:releases/[Download the tarball] if you
-actaully want to run this.
+link:releases/[Download the tarball] to run (needs the build setup and demo
+shared lib).
 
 // Here is an alternate way of doing things that just links to copies of the
 // files all on this page rather than using separate documents:

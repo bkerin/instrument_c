@@ -1,4 +1,6 @@
 *.html
 *.tar.gz
 *.stamp
+*.c.adoc
+*.h.adoc
 instrument_test

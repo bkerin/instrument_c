@@ -3,9 +3,44 @@
 # It's super simple so the package benefits from having only the sources,
 # not the related article or maintainer stuff.
 
+# Allow use of bashisms.
+SHELL = /bin/bash
+
+# In certain situations (e.g. foreach in a define block or recipe, eval,
+# when we want newlines in Make error or warning function output) we want
+# to write newlines that are seen by make itself.  This can be done by
+# including a literal newline, but that breaks the line and is confusing
+# as hell if you don't already know whats going on, so we define a varialbe
+# to keep all the craziness in one place.
+define nl
+
+
+endef
+
 SOURCES = $(wildcard *.h *.c)
 
-HTML_FILES = $(patsubst %.adoc,%.html,$(wildcard *.adoc))
+AUTOGENED_ADOCS = $(patsubst %,%.adoc,$(wildcard *.h *.c))
+
+HTML_FILES =                                                                  \
+  $(patsubst                                                                  \
+      %.adoc,                                                                 \
+      %.html,                                                                 \
+      $(filter-out $(AUTOGENED_ADOCS),$(wildcard *.adoc)) $(AUTOGENED_ADOCS))
+
+define AUTOGENED_ADOC_TEMPLATE
+// WARNING -- AUTOMATICALLY GENERATED FROM $< -- DO NOT EDIT
+= $<
+:nofooter:  // Prevent obnoxious "last modified" thing by not having footer
+:source-highlighter: pygments
+
+[source, C]
+----
+include::$<[]
+----
+endef
+
+$(AUTOGENED_ADOCS): %.adoc: % Makefile.maintainer
+	echo -e '$(subst $(nl),\n,$(AUTOGENED_ADOC_TEMPLATE))' >$@
 
 $(HTML_FILES): %.html: %.adoc Makefile.maintainer
 	gem which pygments   # Die if the syntax highlighter isn't installed
@@ -70,4 +105,4 @@ upload: upload_tarball upload_html
 
 .PHONY: clean
 clean:
-	rm -f *.tar.gz all_html_files.stamp $(HTML_FILES)
+	rm -f *.tar.gz all_html_files.stamp $(HTML_FILES) $(AUTOGENED_ADOCS)
