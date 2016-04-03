@@ -85,7 +85,7 @@ upload_tarball: RELEASES_SCP_TARGET = $(WHOST):$(RELEASES_DIR)
 upload_tarball: RELEASE_FILE = instrument-$(VERSION).tar.gz
 upload_tarball: RELEASE_PATH = $(RELEASES_DIR)/$(RELEASE_FILE)
 upload_tarball: LATEST_LINK_PATH = $(RELEASES_DIR)/LATEST_IS_$(RELEASE_FILE)
-upload_tarball: tarball
+upload_tarball: tarball upload_html
 	# scp give a confusing warning if target dir !exist, so check first
 	ssh $(WHOST) test -d $(RELEASES_DIR)
 	scp instrument-$(VERSION).tar.gz $(RELEASES_SCP_TARGET)
