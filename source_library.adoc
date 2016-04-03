@@ -5,8 +5,8 @@ Instrumentation Source Library
 :source-highlighter: pygments
 
 There are really only two files to it.  You might prefer to just cut and paste.
-The header has a few useful macros worth grabbing if you go that route.  A
-test/demo driver for this interface is also available.
+A test/demo driver and build setup for this interface is also available for
+download.
 
 Download
 --------
@@ -20,29 +20,39 @@ Browse
 ------
 
 * <<instrument.h.adoc#, instrument.h>> -- Interface
-
 * <<instrument.c.adoc#, instrument.c>> -- Implementation
-
 * <<instrument_test.c.adoc#, instrument_test.c>> -- Test/Demo driver.
 link:releases/[Download the tarball] if you
 actaully want to run this.
 
-.instrument.h
-[source, C]
-----
-include::instrument.h[] 
-----
-
-.instrument.c
-[source, C]
-----
-include::instrument.c[]
-----
-
-.instrument_test.c
-If you want to see this test driver in operation you should download the tiny
-package containing the demo setup.
-[source, C]
-----
-include::instrument_test.c[]
-----
+// Here is an alternate way of doing things that just links to copies of the
+// files all on this page rather than using separate documents:
+//
+//.Index
+//
+//* <<instrument.h, instrument.h>> -- Interface
+//* <<instrument.c, instrument.c>> -- Implementation
+//* <<instrument_test.c, instrument_test.c>> -- Test/Demo driver
+//link:releases/[Download the tarball] if you
+//actaully want to run this.
+//
+//
+//.[[instrument.h]]instrument.h
+//[source, C]
+//----
+//include::instrument.h[] 
+//----
+//
+//.[[instrument.c]]instrument.c
+//[source, C]
+//----
+//include::instrument.c[]
+//----
+//
+//.[[instrument_test.c]]instrument_test.c
+//If you want to see this test driver in operation you should download the tiny
+//package containing the demo setup.
+//[source, C]
+//----
+//include::instrument_test.c[]
+//----
