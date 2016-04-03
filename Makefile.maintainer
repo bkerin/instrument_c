@@ -105,4 +105,5 @@ upload: upload_tarball upload_html
 
 .PHONY: clean
 clean:
+	$(MAKE) clean
 	rm -f *.tar.gz all_html_files.stamp $(HTML_FILES) $(AUTOGENED_ADOCS)
