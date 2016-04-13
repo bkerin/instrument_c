@@ -104,7 +104,6 @@ expand_system (char const *format, ...)
   return system (ec);
 }
 
-
 char *
 backtrace_with_line_numbers (void)
 {
@@ -151,6 +150,9 @@ backtrace_with_line_numbers (void)
   return_code = fclose (tfp);
   assert (return_code == 0);
 
+  // FIXMELATER: Instead of just using addr2line on all the addresses, we
+  // could use what_func() on each of them to try to work over shared libs
+  // and such.
   return_code
     = expand_system ("addr2line -e %s -f -i <%s >%s", exe_name, tfba, tfbt);
   assert (return_code == 0);

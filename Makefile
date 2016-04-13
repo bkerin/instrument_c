@@ -29,6 +29,9 @@ CC = $(CCACHE) gcc
 # of how to pass the same cpp flags to cflow as well as the compiler.
 CPPFLAGS = -D_GNU_SOURCE
 
+# Uncomment to try format-free print stuff in instrument_format_free_print.h.
+#CPPFLAGS += -DHAVE_INSTRUMENT_FORMAT_FREE_PRINT_H
+
 # Object files.  In real life client and library files aren't usually
 # compiled in the same make recipe, and automatic dependency tracking is
 # often used to compute .c->.h dependencies.

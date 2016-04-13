@@ -2,15 +2,13 @@
 //
 // Certain GCC compilation and linking options should be used:
 //
+//   * -D_GNU_SOURCE is required at compile time (because GNU libc extensions
+//     are required).  Alternately this can be included before the headers
+//     providing the extensions are included for the *first* time (but it's
+//     a pain to ensure that this is the case).
+//
 //   * -g is required at compile-time for backtraces and what_func() (and you
 //     must not strip binaries or libraries later)
-//
-//   * -fPIC is required for library *AND* client compilation for what_func()
-//     to work when looking up pointers to function in shared libraries
-//
-//   * -ldl is always required at link-time because dladdr() needs it
-//
-//   * -rdynamic is required at link-time for backtraces to work
 //
 //   * -O0 can simplify life by preventing the optimizer from inlining
 //     functions out of existance.  It's probably not an issue for shared
@@ -19,6 +17,19 @@
 //     only fire with one or the other.
 //
 //   * -Wall, -Wextra, and -Werror aren't required but they make life better
+//
+//   * -ldl is always required at link-time because dladdr() needs it, if this
+//     annoys you and you don't care about looking up function in shared
+//     libs chop out or edit what_func (FIXME: make dladdr() use depend
+//     on a define for incremental capability)?
+//
+//   * For what_func() to work righ twhen looking up pointers to functions in
+//     shared librares, -fPIC is required for library *AND* client compilation.
+//     FIXMELATER: it's only needed for clients because of dladdr() bugs, if
+//     dladdr() gets fixed this requirement can be removed
+
+#ifndef INSTRUMENT_H
+#define INSTRUMENT_H
 
 // Note that _GNU_SOURCE must be defined when the headers providing the
 // extensions we need are included for the *first* time.  This means using the
@@ -48,10 +59,20 @@
 #  define TS(fmt, ...) printf ("%s:%i:%s: " fmt "\n", FLFT, ## __VA_ARGS__)
 #endif 
 
+// Define this before this header is included for the first time and take
+// a look in the associated header if it annoys you that you have to tell
+// printf() that you're printing e.g. an int, when the compiler already knows.
+// This stuff is in its own header to avoid frightening people here :)
+#ifdef HAVE_INSTRUMENT_FORMAT_FREE_PRINT_H
+#  define INSTRUMENT_INSIDE_INSTRUMENT_H
+#  include "instrument_format_free_print.h"
+#  undef  INSTRUMENT_INSIDE_INSTRUMENT_H
+#endif
+
 // Get a new string containing a backtrace for the call point.  This is
 // done using the GNU libc backtrace() function and the addr2line program.
-// See the notes above about required compiler options.  On error an assertion
-// violation is triggered.  
+// See the notes above about required compiler options.  On error an
+// assertion violation is triggered.
 //
 // Caveats:
 //
@@ -60,7 +81,9 @@
 //
 //   * This function doesn't make any effort to backtrace through separate
 //     (shared or dynamically loaded) libraries.  FIXMELATER: In theory it
-//     could.
+//     could, in which case -rdynamic would need to be used when compiling
+//     shared libs, and since what_func() would be used per-frame its
+//     requirements would need to be met as well.
 //
 //   * Use from signal handlers probably doesn't work.
 //
@@ -107,3 +130,5 @@ backtrace_with_line_numbers (void);
 // On error an assertion violation is triggered.
 void
 what_func (void *func_addr);
+
+#endif   // INSTRUMENT_H
