@@ -37,42 +37,37 @@
 #  define INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS
 #endif
 
-// FIXME: should we be parenizing macro arguments anywhere?  I think it caused
-// a problem to do it for the type argument in particular so I don't know
-
 // Choose Expression Depending On Thing Type Match.  See the use context.
 #define CEDOTTM(thing, type, exp_if_thing_of_type, exp_if_thing_not_of_type) \
   __builtin_choose_expr (                                                    \
       __builtin_types_compatible_p (                                         \
           typeof (thing),                                                    \
           type ),                                                            \
-      exp_if_thing_of_type,                                                  \
-      exp_if_thing_not_of_type )
+      (exp_if_thing_of_type),                                                  \
+      (exp_if_thing_not_of_type) )
 
-// FIXME: remember to give already_matched a namespaced and pseudo-hygenic
-// name
-
-// Not for independent use (see the existing call context).  Stands for Weird
-// If Matched Check Unmatched Print Set Matched Chunk :) The outer CEDOTTM()
-// evaluates to a only-one-match allowed printf() if thing is of type, or a
-// void expression otherwise.  The inner CEDOTTM() calls are needed because
-// currently GCC still syntax-checks the non-selected expression arguments
-// of __builtin_choose_expr(), so we have to make sure a valid format-thing
-// pair get fed to printf() regardless of the type-ness of thing even at
-// the point where we already know (because of the surrounding CEDOTTM()
-// call) that thing is of type (the pair being format-thing for the case
-// that actually happens, or "%s"-"i_am_never_seen" for the other).  Why do
-// all this?  Because it gets us a warning if one of the entries in the list
-// in PT() has a type-format mismatch that GCC would normally warn about.
-// There are some simpler solutions that don't have this property but it
-// seems worth it since bugs in debugging code are especially annoying.
-#define WIMCUPSMC(thing, type, format)                                   \
+// Not for independent use (see the existing call context).  Stands for
+// Weird If Matched Check Unmatched Print Set Matched Chunk :) The outer
+// CEDOTTM() evaluates to an only-one-match-allowed printf() if XxX_et_
+// (Evaluated Thing) is of type, or a void expression otherwise.  The inner
+// CEDOTTM() calls are needed because currently GCC still syntax-checks
+// the non-selected expression arguments of __builtin_choose_expr(), so
+// we have to make sure a valid format-XxX_et_ pair get fed to printf()
+// regardless of the type-ness of XxX_et_ even at the point where we
+// already know (because of the surrounding CEDOTTM() call) that XxX_et_
+// is of type (the pair being format-XxX_et_ for the case that actually
+// happens, or "%s"-"i_am_never_seen" for the other).  Why do all this?
+// Because it gets us a warning if one of the entries in the list in PT()
+// has a type-format mismatch that GCC would normally warn about.  There are
+// some simpler solutions that don't have this property but it seems worth
+// it since bugs in debugging code are especially annoying.
+#define WIMCUPSMC(type, format)                                   \
   CEDOTTM (                                                              \
-      thing,                                                             \
+      XxX_et_,                                                           \
       type,                                                              \
       (                                                                  \
         (                                                                \
-          already_matched ?                                              \
+          XxX_already_matched_ ?                                         \
           (                                                              \
             printf ("\n"),                                               \
             fprintf (                                                    \
@@ -88,9 +83,9 @@
           (void) 0                                                       \
         ),                                                               \
         printf (                                                         \
-          CEDOTTM (thing, type, format, "%s"),                           \
-          CEDOTTM (thing, type, thing, "i_am_never_seen") ),             \
-        already_matched = true                                           \
+          CEDOTTM (XxX_et_, type, (format), "%s"),                         \
+          CEDOTTM (XxX_et_, type, XxX_et_, "i_am_never_seen") ),         \
+        XxX_already_matched_ = true                                      \
       ),                                                                 \
       ((void) 0) )
 
@@ -98,54 +93,64 @@
 // somewhat adventurous code.  Note that if two types on this list are
 // synonyms a run-time error is triggered if an attempt is made to print
 // a thing of either type.  This means it isn't possible to treat aliased
-// types differently via printf format codes.  The format code for each
-// type printed by this interface is explicitly here and cannot be changed
-// (in fact not having to specify it every time is the point), so a seperate
+// types differently via printf format codes.  The format code for each type
+// printed by this interface is explicitly set here and cannot be changed
+// (in fact not having to specify it every time is the point), so a separate
 // version of this macro would be required to e.g. render ints in hex.
-#define PT(thing)                                                     \
-  do {                                                                \
-    bool already_matched = false;                                     \
-    WIMCUPSMC ( thing , char            , "%c"       );               \
-    WIMCUPSMC ( thing , wchar_t         , "%lc"      );               \
-    WIMCUPSMC ( thing , char *          , "%s"       );               \
-    WIMCUPSMC ( thing , char const *    , "%s"       );               \
-    WIMCUPSMC ( thing , char []         , "%s"       );               \
-    WIMCUPSMC ( thing , wchar_t *       , "%ls"      );               \
-    WIMCUPSMC ( thing , wchar_t const * , "%ls"      );               \
-    WIMCUPSMC ( thing , wchar_t []      , "%s"       );               \
-    WIMCUPSMC ( thing , int8_t          , "%" PRIi8  );               \
-    WIMCUPSMC ( thing , int16_t         , "%" PRIi16 );               \
-    WIMCUPSMC ( thing , int32_t         , "%" PRIi32 );               \
-    WIMCUPSMC ( thing , int64_t         , "%" PRIi64 );               \
-    WIMCUPSMC ( thing , uint8_t         , "%" PRIu8  );               \
-    WIMCUPSMC ( thing , uint16_t        , "%" PRIu16 );               \
-    WIMCUPSMC ( thing , uint32_t        , "%" PRIu32 );               \
-    WIMCUPSMC ( thing , uint64_t        , "%" PRIu64 );               \
-    WIMCUPSMC ( thing , float           , "%g"       );               \
-    WIMCUPSMC ( thing , double          , "%g"       );               \
-    WIMCUPSMC ( thing , long double     , "%g"       );               \
-    WIMCUPSMC ( thing , void *          , "%p"       );               \
-    INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS                               \
-    if ( ! already_matched ) {                                        \
-      printf ("\n");                                                  \
-      fprintf (                                                       \
-          stderr,                                                     \
-          "%s:%i:%s: "                                                \
-          "error: PT() macro don't know how to print things of type " \
-          "typeof (" #thing ")\n",                                    \
-          FLFT );                                                     \
-      abort ();                                                       \
-    }                                                                 \
-  } while ( false );
+// It might be better to use __auto_type rather than typeof() here, but
+// it doesn't work from C++ and would only help in the very minority case
+// of a variably modified type that can't tolerate being evaluated more
+// than once.  We use weird "XxX_" prefix and "_" postfix and _Pragma()
+// to achieve a reasonably approximation of a hygenic macro in C: it fails
+// at compile-time when any shadowing happens even if it isn't relevant to
+// the PT() being done, but at least it can't silently screw up.
+#define PT(thing)                                                       \
+  do {                                                                  \
+    _Pragma ("GCC diagnostic push");                                    \
+    _Pragma ("GCC diagnostic error \"-Wshadow\"");                      \
+    bool XxX_already_matched_ = false;                                  \
+    typeof (thing) XxX_et_ = thing;   /* thing evaluted only here */    \
+    _Pragma ("GCC diagnostic pop");                                     \
+    WIMCUPSMC ( char            , "%c"       );                         \
+    WIMCUPSMC ( wchar_t         , "%lc"      );                         \
+    WIMCUPSMC ( char *          , "%s"       );                         \
+    WIMCUPSMC ( char const *    , "%s"       );                         \
+    WIMCUPSMC ( char []         , "%s"       );                         \
+    WIMCUPSMC ( wchar_t *       , "%ls"      );                         \
+    WIMCUPSMC ( wchar_t const * , "%ls"      );                         \
+    WIMCUPSMC ( wchar_t []      , "%s"       );                         \
+    WIMCUPSMC ( int8_t          , "%" PRIi8  );                         \
+    WIMCUPSMC ( int16_t         , "%" PRIi16 );                         \
+    WIMCUPSMC ( int32_t         , "%" PRIi32 );                         \
+    WIMCUPSMC ( int64_t         , "%" PRIi64 );                         \
+    WIMCUPSMC ( uint8_t         , "%" PRIu8  );                         \
+    WIMCUPSMC ( uint16_t        , "%" PRIu16 );                         \
+    WIMCUPSMC ( uint32_t        , "%" PRIu32 );                         \
+    WIMCUPSMC ( uint64_t        , "%" PRIu64 );                         \
+    WIMCUPSMC ( float           , "%g"       );                         \
+    WIMCUPSMC ( double          , "%g"       );                         \
+    WIMCUPSMC ( long double     , "%Lg"      );                         \
+    WIMCUPSMC ( void *          , "%p"       );                         \
+    INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS;                                \
+    if ( ! XxX_already_matched_ ) {                                     \
+      printf ("\n");                                                    \
+      fprintf (                                                         \
+          stderr,                                                       \
+          "%s:%i:%s: "                                                  \
+          "error: PT() macro doesn't know how to print things of type " \
+          "typeof (" #thing ")\n",                                      \
+          FLFT );                                                       \
+      abort ();                                                         \
+    }                                                                   \
+  } while ( 0 ) 
 
-// FIXME: really use the new-age while ( false ) form?
-
-// Trace Thing.  This just puts the source location and a newline around PT().
-#define TT(thing)                \
-  do {                           \
-    printf ("%s:%i:%s: ", FLFT); \
-    PT (thing);                  \
-    printf ("\n");               \
+// Trace Thing.  This just puts the source location, thing text, and a
+// newline around PT().
+#define TT(thing)                            \
+  do {                                       \
+    printf ("%s:%i:%s: " #thing ": ", FLFT); \
+    PT (thing);                              \
+    printf ("\n");                           \
   } while ( 0 );
 
 #endif   // INSTRUMENT_FORMAT_FREE_PRINT_H

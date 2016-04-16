@@ -30,7 +30,14 @@ CC = $(CCACHE) gcc
 CPPFLAGS = -D_GNU_SOURCE
 
 # Uncomment to try format-free print stuff in instrument_format_free_print.h.
-#CPPFLAGS += -DHAVE_INSTRUMENT_FORMAT_FREE_PRINT_H
+CPPFLAGS += -DHAVE_INSTRUMENT_FORMAT_FREE_PRINT_H
+
+# Uncomment this (and also the line above that defines
+# HAVE_INSTRUMENT_FORMAT_FREE_PRINT_H) to try the format-free printf extension
+# demo in instrument_pt_extensions.h.  Note that unlike the other headers
+# in this library this one is just a demo: it must be edited in order to
+# be useful.
+CPPFLAGS += -DHAVE_INSTRUMENT_PT_EXTENSIONS_H
 
 # Object files.  In real life client and library files aren't usually
 # compiled in the same make recipe, and automatic dependency tracking is

@@ -10,23 +10,22 @@
 //   * -g is required at compile-time for backtraces and what_func() (and you
 //     must not strip binaries or libraries later)
 //
+//   * -ldl is always required at link-time because dladdr() needs it, if
+//     this annoys you and you don't care about looking up functions in
+//     shared libs chop out or edit what_func()
+//
 //   * -O0 can simplify life by preventing the optimizer from inlining
 //     functions out of existance.  It's probably not an issue for shared
 //     libraries because exported symbols should be safe.  I like to compile
 //     twice, once with -O2 and once with -O0, since some useful warnings
 //     only fire with one or the other.
 //
-//   * -Wall, -Wextra, and -Werror aren't required but they make life better
-//
-//   * -ldl is always required at link-time because dladdr() needs it, if this
-//     annoys you and you don't care about looking up function in shared
-//     libs chop out or edit what_func (FIXME: make dladdr() use depend
-//     on a define for incremental capability)?
-//
-//   * For what_func() to work righ twhen looking up pointers to functions in
+//   * For what_func() to work right when looking up pointers to functions in
 //     shared librares, -fPIC is required for library *AND* client compilation.
 //     FIXMELATER: it's only needed for clients because of dladdr() bugs, if
 //     dladdr() gets fixed this requirement can be removed
+//
+//   * -Wall, -Wextra, and -Werror aren't required but they make life better
 
 #ifndef INSTRUMENT_H
 #define INSTRUMENT_H
@@ -48,10 +47,11 @@
 // Check Point: prints source location followed by a newline
 #define CP() printf ("%s:%i:%s: checkpoint\n", FLFT)
 
-// Trace Value: given var name and unquoted print format code, print source
-// location and var value followed by a newline, e.g. TV (my_int, %i) 
-#define TV(var_name, format_code)                                          \
-  printf ("%s:%i:%s: " #var_name ": " #format_code "\n", FLFT, var_name)
+// Trace Value: given an expression expr and an unquoted format code, print
+// the source location and expression text and value followed by a newline,
+// e.g. TV (my_int, %i), TV (my_sub_returning_int (), %i).
+#define TV(expr, format_code)                                    \
+  printf ("%s:%i:%s: " #expr ": " #format_code "\n", FLFT, expr)
 
 // Trace Stuff: print expanded format string in first argument, using values
 // given in remaining arguments, tagged with source location and added newline
@@ -59,10 +59,10 @@
 #  define TS(fmt, ...) printf ("%s:%i:%s: " fmt "\n", FLFT, ## __VA_ARGS__)
 #endif 
 
-// Define this before this header is included for the first time and take
-// a look in the associated header if it annoys you that you have to tell
-// printf() that you're printing e.g. an int, when the compiler already knows.
-// This stuff is in its own header to avoid frightening people here :)
+// If it annoys you that you have to tell printf() that you're printing
+// e.g. an int, when the compiler already knows, define this before this
+// header is included for the first time and look in the associated header.
+// This stuff is in its own optional header to avoid frightening people :)
 #ifdef HAVE_INSTRUMENT_FORMAT_FREE_PRINT_H
 #  define INSTRUMENT_INSIDE_INSTRUMENT_H
 #  include "instrument_format_free_print.h"

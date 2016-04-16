@@ -317,10 +317,9 @@ what_func (void *func_addr)
     assert (return_code == 0);
   }
   else {
-    // FIXME: research this point.  Is the name really wrong in this case?
-    // Might nm actually succeed anyway?  Afterall it's searching by symbol
-    // name, not by address.  dladdr() presumably provides address of nearest
-    // symbol for some reason, rather than just failing.
+    // FIXMELATER: are there cases in which we don't get an exact match,
+    // but the reported name is right?  I'm uncertain on this even after
+    // asking on the libc mailing list, so for now we're being paranoid.
     printf (
         "  No exact address match: function location unknown, and the\n"
         "  reported name might be wrong.");
