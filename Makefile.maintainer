@@ -44,6 +44,7 @@ $(AUTOGENED_ADOCS): %.adoc: % Makefile.maintainer
 
 $(HTML_FILES): %.html: %.adoc Makefile.maintainer
 	gem which pygments   # Die if the syntax highlighter isn't installed
+	# FIXME: it's lame that this style makes in-line code text link-colored
 	asciidoctor -a stylesheet=asciidoc.css $<
 	# Here's how to not use a style sheet:
 	#asciidoctor -a stylesheet! $<

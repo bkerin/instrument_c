@@ -43,7 +43,7 @@
       __builtin_types_compatible_p (                                         \
           typeof (thing),                                                    \
           type ),                                                            \
-      (exp_if_thing_of_type),                                                  \
+      (exp_if_thing_of_type),                                                \
       (exp_if_thing_not_of_type) )
 
 // Not for independent use (see the existing call context).  Stands for
