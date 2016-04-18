@@ -5,9 +5,12 @@
 //
 // There's no reason in principle that printf() must be used: a new version
 // of the WIMCUPSMC() macro from instrument_format_free_print.h could be
-// defined that does something other than printf(), thereby turning PT()
-// into a generic "show-me-this-thing" interface.  This is left as an
-// exercise for the reader.
+// defined that does something other than printf(), thereby turning PT() into
+// a generic "show-me-this-thing" interface.  In fact, if there is no need to
+// ever use printf() on a type, it's easier to just have WIMCUPSMC() print it
+// by calling some other function, thereby avoiding the printf() extension
+// interface (i.e. no need for GNU libc register_printf_specifier()).
+// This stuff is left as an exercise for the reader.
 
 // Require the expected context.  Because there is no .c implementation
 // file associated with this header we don't need to allow this file to

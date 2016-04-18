@@ -61,7 +61,8 @@
 // has a type-format mismatch that GCC would normally warn about.  There are
 // some simpler solutions that don't have this property but it seems worth
 // it since bugs in debugging code are especially annoying.
-#define WIMCUPSMC(type, format)                                   \
+
+#define WIMCUPSMC(type, format)                                          \
   CEDOTTM (                                                              \
       XxX_et_,                                                           \
       type,                                                              \
@@ -83,7 +84,7 @@
           (void) 0                                                       \
         ),                                                               \
         printf (                                                         \
-          CEDOTTM (XxX_et_, type, (format), "%s"),                         \
+          CEDOTTM (XxX_et_, type, (format), "%s"),                       \
           CEDOTTM (XxX_et_, type, XxX_et_, "i_am_never_seen") ),         \
         XxX_already_matched_ = true                                      \
       ),                                                                 \

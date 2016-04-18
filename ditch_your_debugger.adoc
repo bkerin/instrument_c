@@ -25,7 +25,7 @@ macros for things like this:
 ----
 printf ("%s:%i:%s: checkpoint\n", __FILE__, __LINE__, __func__);
 ----
-if you don't like having to tell `printf()` what type you're printing when the
+If you don't like having to tell `printf()` what type you're printing when the
 compiler already knows, check out the the `PT()` and `TP()` macros from the
 optional `instrument_format_free_print.h` header in the
 <<source_library.adoc#, source library>> download.
