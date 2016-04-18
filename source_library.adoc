@@ -4,8 +4,8 @@ Instrumentation Source Library
 :nofooter:  // Prevent obnoxious "last modified" thing by not having footer
 :source-highlighter: pygments
 
-There are really only two files to it.  You might prefer to just cut and paste.
-A test/demo driver and build setup for this interface is also available for
+There are only two files required.  You might prefer to just cut and paste.  A
+test/demo driver and build setup for this interface is also available for
 download.
 
 Download
