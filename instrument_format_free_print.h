@@ -20,6 +20,7 @@
 #endif
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <wchar.h>
 
