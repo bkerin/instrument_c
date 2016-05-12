@@ -30,14 +30,14 @@ CC = $(CCACHE) gcc
 CPPFLAGS = -D_GNU_SOURCE
 
 # Uncomment to try format-free print stuff in instrument_format_free_print.h.
-CPPFLAGS += -DHAVE_INSTRUMENT_FORMAT_FREE_PRINT_H
+#CPPFLAGS += -DHAVE_INSTRUMENT_FORMAT_FREE_PRINT_H
 
 # Uncomment this (and also the line above that defines
 # HAVE_INSTRUMENT_FORMAT_FREE_PRINT_H) to try the format-free printf extension
 # demo in instrument_pt_extensions.h.  Note that unlike the other headers
 # in this library this one is just a demo: it must be edited in order to
 # be useful.
-CPPFLAGS += -DHAVE_INSTRUMENT_PT_EXTENSIONS_H
+#CPPFLAGS += -DHAVE_INSTRUMENT_PT_EXTENSIONS_H
 
 # Object files.  In real life client and library files aren't usually
 # compiled in the same make recipe, and automatic dependency tracking is
@@ -62,9 +62,14 @@ instrument_test: instrument_test.o instrument.o libdemo_shared_lib.so
 run_instrument_test: instrument_test
 	./$< || echo Recipe succeeding anyway because ./$< is expected to fail
 
-# If you'r interested in using cflow or global check this, otherwise ignore:
+# If you're interested in using cflow or global look at this:
 -include cflow_and_global.mk
+
+# If you're interested in building and installing libinstrument.a look at this:
+-include instrument_lib.mk
 
 .PHONY: clean
 clean:
-	rm -rf *.o *.so* instrument_test core $(CFLOW_AND_GLOBAL_CLEANFILES)
+	rm -rf *.o *.so* instrument_test core \
+               $(CFLOW_AND_GLOBAL_CLEANFILES) \
+               $(INSTRUMENT_LIB_CLEANFILES)

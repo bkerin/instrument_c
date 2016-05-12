@@ -4,3 +4,5 @@
 *.c.adoc
 *.h.adoc
 instrument_test
+libinstrument.a
+instrument_test_using_installed_lib
