@@ -4,10 +4,12 @@
 // code is the worst.  I haven't shot myself in the foot with this stuff
 // yet but maybe the possibility is there, proceed with caution.
 //
-// IMPROVEME: the C11 _Generic keyword and associated functionality might
-// be useful to make all this cleaner.  I think all that would really
-// be different is the syntax, since _Generic on GCC is almost certainly
-// implemented in terms of the GCC extensions used here.
+// IMPROVEME: the C11 _Generic keyword and associated functionality
+// might be useful to make all this cleaner.  I think all that
+// would really be different is the syntax, since _Generic on GCC
+// is almost certainly implemented in terms of the GCC extensions
+// used here.  The syntax might get lots better though.  See here:
+// http://www.robertgamble.net/2012/01/c11-generic-selections.html
 
 // Require the expected context.  Because there is no .c implementation
 // file associated with this header we don't need to allow this file to
