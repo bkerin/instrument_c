@@ -7,10 +7,11 @@
 // of the WIMCUPSMC() macro from instrument_format_free_print.h could be
 // defined that does something other than printf(), thereby turning PT()
 // into a generic "show-me-this-thing" interface.  In fact, if there is no
-// need to ever use printf() on a type, it's probably easier to just make a
-// WIMCUPSMC() variant that prints it by calling some other function, thereby
-// avoiding the printf() extension interface (i.e. no need for GNU libc
-// register_printf_specifier()).  This is left as an exercise for the reader.
+// need to ever use printf() on a type except for instrumentation purposes,
+// it's probably easier to just make a WIMCUPSMC() variant that prints it
+// by calling some other function, thereby avoiding the printf() extension
+// interface (i.e. no need for GNU libc register_printf_specifier()).
+// This is left as an exercise for the reader.
 
 // Require the expected context.  Because there is no .c implementation
 // file associated with this header we don't need to allow this file to
@@ -106,7 +107,7 @@ print_widget_arginfo (struct printf_info const *info, size_t n,
     argtypes[0] = PA_POINTER;
     size[0] = sizeof (void *);
   }
-    
+
   return 1;
 }
 
