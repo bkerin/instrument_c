@@ -1,4 +1,4 @@
-// Support for debugging using instrumentation 
+// Support for debugging using instrumentation
 //
 // Certain GCC compilation and linking options should be used:
 //
@@ -38,6 +38,7 @@
 #endif
 
 #include <errno.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -57,7 +58,7 @@
 // given in remaining arguments, tagged with source location and added newline
 #ifdef __GNUC__   // This one needs GNU comma-swallowing __VA_ARGS__ extension
 #  define TS(fmt, ...) printf ("%s:%i:%s: " fmt "\n", FLFT, ## __VA_ARGS__)
-#endif 
+#endif
 
 // If it annoys you that you have to tell printf() that you're printing
 // e.g. an int, when the compiler already knows, define this before this
