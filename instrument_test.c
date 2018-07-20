@@ -113,8 +113,6 @@ main (void)
   TT (test_unsigned_int);
   TT (test_unsigned_long_int);
   TT (test_unsigned_long_long_int);
-  // FIXME: test the literal values here? or maybe just for new-style
-  // names below
 
   TT (test_uint8);
   TT (test_uint16);
