@@ -109,48 +109,59 @@
 // it doesn't work from C++ and would only help in the very minority case
 // of a variably modified type that can't tolerate being evaluated more
 // than once.  We use weird "XxX_" prefix and "_" postfix and _Pragma()
-// to achieve a reasonably approximation of a hygenic macro in C: it fails
+// to achieve a reasonably approximation of a hygenic macro in C: It fails
 // at compile-time when any shadowing happens even if it isn't relevant to
 // the PT() being done, but at least it can't silently screw up.
-#define PT(thing)                                                       \
-  do {                                                                  \
-    _Pragma ("GCC diagnostic push");                                    \
-    _Pragma ("GCC diagnostic error \"-Wshadow\"");                      \
-    bool XxX_already_matched_ = false;                                  \
-    typeof (thing) XxX_et_ = thing;   /* thing evaluted only here */    \
-    _Pragma ("GCC diagnostic pop");                                     \
-    WIMCUPSMC ( char            , "%c"       );                         \
-    WIMCUPSMC ( wchar_t         , "%lc"      );                         \
-    WIMCUPSMC ( char *          , "%s"       );                         \
-    WIMCUPSMC ( char const *    , "%s"       );                         \
-    WIMCUPSMC ( char []         , "%s"       );                         \
-    WIMCUPSMC ( wchar_t *       , "%ls"      );                         \
-    WIMCUPSMC ( wchar_t const * , "%ls"      );                         \
-    WIMCUPSMC ( wchar_t []      , "%s"       );                         \
-    WIMCUPSMC ( int8_t          , "%" PRIi8  );                         \
-    WIMCUPSMC ( int16_t         , "%" PRIi16 );                         \
-    WIMCUPSMC ( int32_t         , "%" PRIi32 );                         \
-    WIMCUPSMC ( int64_t         , "%" PRIi64 );                         \
-    WIMCUPSMC ( uint8_t         , "%" PRIu8  );                         \
-    WIMCUPSMC ( uint16_t        , "%" PRIu16 );                         \
-    WIMCUPSMC ( uint32_t        , "%" PRIu32 );                         \
-    WIMCUPSMC ( uint64_t        , "%" PRIu64 );                         \
-    WIMCUPSMC ( float           , "%g"       );                         \
-    WIMCUPSMC ( double          , "%g"       );                         \
-    WIMCUPSMC ( long double     , "%Lg"      );                         \
-    WIMCUPSMC ( void *          , "%p"       );                         \
-    INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS;                                \
-    if ( ! XxX_already_matched_ ) {                                     \
-      printf ("\n");                                                    \
-      fprintf (                                                         \
-          stderr,                                                       \
-          "%s:%i:%s: "                                                  \
-          "error: PT() macro doesn't know how to print things of type " \
-          "typeof (" #thing ")\n",                                      \
-          FLFT );                                                       \
-      abort ();                                                         \
-    }                                                                   \
-  } while ( 0 ) 
+// FIXME: there's some stuff in cduino/term_io.h that is a mostly cloned
+// version of this whole setup, but a bit more advanced now in some ways:
+// has four levels of embellishment rather than just print and trace, and
+// a versionof things for outputing as hex.  That stuff should be copied
+// back in here
+#define PT(thing)                                                           \
+  do {                                                                      \
+    _Pragma ("GCC diagnostic push");                                        \
+    _Pragma ("GCC diagnostic error \"-Wshadow\"");                          \
+    bool XxX_already_matched_ = false;                                      \
+    typeof (thing) XxX_et_ = thing;   /* thing evaluted only here */        \
+    _Pragma ("GCC diagnostic pop");                                         \
+    WIMCUPSMC ( char                  , "%c"       );                       \
+    WIMCUPSMC ( char *                , "%s"       );                       \
+    WIMCUPSMC ( char const *          , "%s"       );                       \
+    WIMCUPSMC ( char []               , "%s"       );                       \
+    /* It seems that wchar_t is not distinct from int32_t, so it's out */   \
+    /*WIMCUPSMC ( wchar_t               , "%lc"      );*/                   \
+    WIMCUPSMC ( wchar_t *             , "%ls"      );                       \
+    WIMCUPSMC ( wchar_t const *       , "%ls"      );                       \
+    WIMCUPSMC ( wchar_t []            , "%s"       );                       \
+    WIMCUPSMC ( int8_t                , "%" PRIi8  );                       \
+    WIMCUPSMC ( int16_t               , "%" PRIi16 );                       \
+    WIMCUPSMC ( int32_t               , "%" PRIi32 );                       \
+    WIMCUPSMC ( int64_t               , "%" PRIi64 );                       \
+    WIMCUPSMC ( uint8_t               , "%" PRIu8  );                       \
+    WIMCUPSMC ( uint16_t              , "%" PRIu16 );                       \
+    WIMCUPSMC ( uint32_t              , "%" PRIu32 );                       \
+    WIMCUPSMC ( uint64_t              , "%" PRIu64 );                       \
+    /* Unlike the shorter integer types, the long long integer types are */ \
+    /* distinct from int64_t/uint64_t, even though they are the same */     \
+    /* length on my platform at least.  */                                  \
+    WIMCUPSMC ( long long int         , "%lli"     );                       \
+    WIMCUPSMC ( long long unsigned int, "%llu"     );                       \
+    WIMCUPSMC ( float                 , "%g"       );                       \
+    WIMCUPSMC ( double                , "%g"       );                       \
+    WIMCUPSMC ( long double           , "%Lg"      );                       \
+    WIMCUPSMC ( void *                , "%p"       );                       \
+    INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS;                                    \
+    if ( ! XxX_already_matched_ ) {                                         \
+      printf ("\n");                                                        \
+      fprintf (                                                             \
+          stderr,                                                           \
+          "%s:%i:%s: "                                                      \
+          "error: PT() macro doesn't know how to print things of type "     \
+          "typeof (" #thing ")\n",                                          \
+          FLFT );                                                           \
+      abort ();                                                             \
+    }                                                                       \
+  } while ( 0 )
 
 // Trace Thing.  This just puts the source location, thing text, and a
 // newline around PT().
