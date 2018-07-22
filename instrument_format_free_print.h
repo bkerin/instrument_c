@@ -146,6 +146,7 @@
     /* length on my platform at least.  */                                  \
     WIMCUPSMC ( long long int         , "%lli"     );                       \
     WIMCUPSMC ( long long unsigned int, "%llu"     );                       \
+    WIMCUPSMC ( bool                  , "%i"       );                       \
     WIMCUPSMC ( float                 , "%g"       );                       \
     WIMCUPSMC ( double                , "%g"       );                       \
     WIMCUPSMC ( long double           , "%Lg"      );                       \

@@ -90,6 +90,7 @@ main (void)
   int16_t                test_int16                   = -42;
   int32_t                test_int32                   = -42;
   int64_t                test_int64                   = -42;
+  bool                   test_bool                    = true;
   float                  test_float                   = 42.42;
   double                 test_double                  = 42.42;
   long double            test_long_double             = 42.42;
@@ -130,6 +131,10 @@ main (void)
   TT (UINT16_C (42));
   TT (UINT32_C (42));
   TT (UINT64_C (42));
+
+  TT (test_bool);
+  TT (false);
+  TT (true);
 
   TT (test_float);
   TT (test_double);
