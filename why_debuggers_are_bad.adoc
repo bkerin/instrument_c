@@ -1,9 +1,8 @@
 
 Why Debuggers Are Bad
 =====================
-:nofooter:  // Prevent obnoxious "last modified" thing by not having footer
 
-Linus and many others have ranted a lot about how debuggers tend to be used as
+Kernighan, Linus etc. have ranted a lot about how debuggers tend to be used as
 a substitute for comprehension, for writing comprehensible code, etc.  Yeah
 yeah, just about anything _can_ be used for evil.  Here are the _real_ problems
 with debuggers:
@@ -28,14 +27,15 @@ any particular part of the system or modularize any of the knowledge required.
 * Debuggers are often useless for the hardest kind of bugs, so you end up
 adding instrumentation anyway.  Consider for example a satellite orbit
 predictor that sometimes produces slightly wrong results due to rounding error.
-To diagnose and fix this you may need to write code to displays graphs,
+To diagnose and fix this you may need to write code to display graphs,
 experiment with different floating point sizes, etc.  Doing that requires
 additional code in the project language.  So you end up with a discontinuity
 between your simple instrumentation (e.g. printf spelled in debugger-ese) and
 your more complex domain-specific instrumentation.  That wastes mental energy.
 This point applies less (but usually still somewhat) to eval-type debuggers,
-but in that situation the debugger is normally no faster than the regular
-interpreter anyway, so what's the point?
+but in that situation there'e generally no compilation to be done anyway so no
+edit-compile-debug cycle speedup relative to instrumentation and/or unit tests,
+so what's the point?
 
 * Debuggers can produce run-time situations that cannot easily be replicated.
 The advantage of run-time manipulation of values (which is small anyway IMO) is

@@ -3,15 +3,18 @@ Alternative Memory Debugging
 ============================
 :nofooter:  // Prevent obnoxious "last modified" thing by not having footer
 
+FIXME: -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak probably
+deserve a mention here
+
 The link:http://valgrind.org[valgrind] program does a really good job finding
 memory bugs.  But if for some reason you don't want to use it there are some
 alternatives:
 
 * Create wrappers for `malloc()`, `calloc()`, `free()` etc. that print what
-they're doing when they run.  This statety is probably most useful when you're
+they're doing when they run.  This stategy is probably most useful when you're
 starting with strong suspiciouns about which calls are involved in a problem --
 just substitute wrapper calls for the suspects.
- 
+
 * Define macros called `malloc()`, `calloc()` etc. that call wrapper functions
 defined as described above.  This strategy can be used to easily substitute
 your wrappers for all calls wherever these macros are defined.  This approach
