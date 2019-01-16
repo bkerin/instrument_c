@@ -94,6 +94,9 @@ main (void)
   float                  test_float                   = 42.42;
   double                 test_double                  = 42.42;
   long double            test_long_double             = 42.42;
+  uint8_t                test_hex_uint8               = 0x42;
+  uint16_t               test_hex_uint16              = 0xab42;
+  uint32_t               test_hex_uint32              = 0x00abcd42;
 
   // Constant int and floating point types seem to work fine without explicit
   // mentions of the const types in the list in the PT() definition.
@@ -139,6 +142,8 @@ main (void)
   TT (test_float);
   TT (test_double);
   TT (test_long_double);
+  PT ("NOTE: the stringified labels of floating point literals aren't\n");
+  PT ("subject to printf() rounding, but the values themselves are:\n");
   TT (42.424211111f);
   TT (42.424211111);
   TT (42.424211111d);
@@ -147,15 +152,25 @@ main (void)
   TT (test_const_double);
 
   TT (i_return_an_int ());
-  // FIXME: might be work actually checking if all this crazy stuff works
+  // FIXME: might be worth actually checking if all this crazy stuff works
   // for functions of all the other supported return types as well
 
+  TTX (test_hex_uint8);
+  TTX (test_hex_uint16);
+  TTX (test_hex_uint32);
+  
   printf ("\n");
 
   // Note that the stringified label used for literal floating point values
   // isn't subject to printf() rounding, but the value itself is.
-  PT ("Plain PT() (without source locations or implicit newlines) ");
-  PT ("is also available.\n");
+  PT ("Other available variants (mostly tested indirectly by the above):\n");
+  PT ("  PT (thing) -- without source locations or implicit newlines\n");
+  PT ("  PL (thing) -- Like PT(), but adds a Label (e.g. var_name: 42)\n");
+  PT ("  DT (thing) -- Dump Thing.  Like PL(), but also appends a newline\n");
+  PT ("  TT (thing) -- Trace Thing.  Like DT() including file:line:func:\n");
+  PT ("  TD (thing) -- Like TT(), but exit (EXIT_FAILURE) afterwords\n");
+  PT ("  *X (thing) -- Analogous variants to the above, but only work for\n");
+  PT ("                uint8_t/uint16_t/uint32_t types and output in hex\n");
 
   printf ("\n");
 #endif

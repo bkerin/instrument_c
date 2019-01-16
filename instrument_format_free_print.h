@@ -29,7 +29,19 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <wchar.h>
+
+// Some might preferr to #define this such that output goes to stderr
+#ifndef INSTRUMENT_FORMAT_FREE_PRINT_STREAM
+#  define INSTRUMENT_FORMAT_FREE_PRINT_STREAM stdout
+#endif // INSTRUMENT_FORMAT_FREE_PRINT_STREAM
+
+// Default to use 6 significant digits (the default for %g format output
+// in printf()).
+#ifndef INSTRUMENT_FORMAT_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
+#  define INSTRUMENT_FORMAT_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS "6"
+#endif // INSTRUMENT_FORMAT_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS 
 
 // This shouldn't be needed for format-free printing of most basic
 // types since they should already be on the list.  See the sample
@@ -77,7 +89,7 @@
         (                                                                \
           XxX_already_matched_ ?                                         \
           (                                                              \
-            printf ("\n"),                                               \
+            fprintf (stderr, "\n"),                                      \
             fprintf (                                                    \
                 stderr,                                                  \
                 "%s:%i:%s: "                                             \
@@ -90,12 +102,23 @@
           :                                                              \
           (void) 0                                                       \
         ),                                                               \
-        printf (                                                         \
+        fprintf (                                                        \
+          INSTRUMENT_FORMAT_FREE_PRINT_STREAM,                           \
           CEDOTTM (XxX_et_, type, (format), "%s"),                       \
           CEDOTTM (XxX_et_, type, XxX_et_, "i_am_never_seen") ),         \
         XxX_already_matched_ = true                                      \
       ),                                                                 \
       ((void) 0) )
+
+// Convenience alias.  Causes a name clash if clients name something IFFPFSD :)
+#define IFFPFSD INSTRUMENT_FORMAT_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
+
+// FIXME: these FIXME apply to the stuff in cduino as well
+// FIXME: why is whchar_t [] using %s?  Looks wrong, check.  But I though I
+// went over all this
+// FIXME: probably want const versions of everything in the below list?
+// C11 _Generic approach would require that at least, I think, may need it
+// here as well
 
 // Try to Print Thing (which must be of one of the known types).  This is
 // somewhat adventurous code.  Note that if two types on this list are
@@ -112,11 +135,6 @@
 // to achieve a reasonably approximation of a hygenic macro in C: It fails
 // at compile-time when any shadowing happens even if it isn't relevant to
 // the PT() being done, but at least it can't silently screw up.
-// FIXME: there's some stuff in cduino/term_io.h that is a mostly cloned
-// version of this whole setup, but a bit more advanced now in some ways:
-// has four levels of embellishment rather than just print and trace, and
-// a versionof things for outputing as hex.  That stuff should be copied
-// back in here
 #define PT(thing)                                                           \
   do {                                                                      \
     _Pragma ("GCC diagnostic push");                                        \
@@ -124,36 +142,37 @@
     bool XxX_already_matched_ = false;                                      \
     typeof (thing) XxX_et_ = thing;   /* thing evaluted only here */        \
     _Pragma ("GCC diagnostic pop");                                         \
-    WIMCUPSMC ( char                  , "%c"       );                       \
-    WIMCUPSMC ( char *                , "%s"       );                       \
-    WIMCUPSMC ( char const *          , "%s"       );                       \
-    WIMCUPSMC ( char []               , "%s"       );                       \
+    WIMCUPSMC ( char                  , "%c"              );                \
+    WIMCUPSMC ( char *                , "%s"              );                \
+    WIMCUPSMC ( char const *          , "%s"              );                \
+    WIMCUPSMC ( char []               , "%s"              );                \
     /* It seems that wchar_t is not distinct from int32_t, so it's out */   \
     /*WIMCUPSMC ( wchar_t               , "%lc"      );*/                   \
-    WIMCUPSMC ( wchar_t *             , "%ls"      );                       \
-    WIMCUPSMC ( wchar_t const *       , "%ls"      );                       \
-    WIMCUPSMC ( wchar_t []            , "%s"       );                       \
-    WIMCUPSMC ( int8_t                , "%" PRIi8  );                       \
-    WIMCUPSMC ( int16_t               , "%" PRIi16 );                       \
-    WIMCUPSMC ( int32_t               , "%" PRIi32 );                       \
-    WIMCUPSMC ( int64_t               , "%" PRIi64 );                       \
-    WIMCUPSMC ( uint8_t               , "%" PRIu8  );                       \
-    WIMCUPSMC ( uint16_t              , "%" PRIu16 );                       \
-    WIMCUPSMC ( uint32_t              , "%" PRIu32 );                       \
-    WIMCUPSMC ( uint64_t              , "%" PRIu64 );                       \
+    WIMCUPSMC ( wchar_t *             , "%ls"             );                \
+    WIMCUPSMC ( wchar_t const *       , "%ls"             );                \
+    WIMCUPSMC ( wchar_t []            , "%s"              );                \
+    WIMCUPSMC ( int8_t                , "%" PRIi8         );                \
+    WIMCUPSMC ( int16_t               , "%" PRIi16        );                \
+    WIMCUPSMC ( int32_t               , "%" PRIi32        );                \
+    WIMCUPSMC ( int64_t               , "%" PRIi64        );                \
+    WIMCUPSMC ( uint8_t               , "%" PRIu8         );                \
+    WIMCUPSMC ( uint16_t              , "%" PRIu16        );                \
+    WIMCUPSMC ( uint32_t              , "%" PRIu32        );                \
+    WIMCUPSMC ( uint64_t              , "%" PRIu64        );                \
     /* Unlike the shorter integer types, the long long integer types are */ \
     /* distinct from int64_t/uint64_t, even though they are the same */     \
     /* length on my platform at least.  */                                  \
-    WIMCUPSMC ( long long int         , "%lli"     );                       \
-    WIMCUPSMC ( long long unsigned int, "%llu"     );                       \
-    WIMCUPSMC ( bool                  , "%i"       );                       \
-    WIMCUPSMC ( float                 , "%g"       );                       \
-    WIMCUPSMC ( double                , "%g"       );                       \
-    WIMCUPSMC ( long double           , "%Lg"      );                       \
-    WIMCUPSMC ( void *                , "%p"       );                       \
+    WIMCUPSMC ( long long int         , "%lli"            );                \
+    WIMCUPSMC ( long long unsigned int, "%llu"            );                \
+    WIMCUPSMC ( bool                  , "%i"              );                \
+    WIMCUPSMC ( float                 , "%." IFFPFSD "g"  );                \
+    WIMCUPSMC ( double                , "%." IFFPFSD "g"  );                \
+    WIMCUPSMC ( long double           , "%." IFFPFSD "Lg" );                \
+    WIMCUPSMC ( void *                , "%p"              );                \
     INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS;                                    \
     if ( ! XxX_already_matched_ ) {                                         \
-      printf ("\n");                                                        \
+      printf ("\n");            /* Flush and existing stdout output */      \
+      fprintf (stderr, "\n");   /* Flush and existing stderr output */      \
       fprintf (                                                             \
           stderr,                                                           \
           "%s:%i:%s: "                                                      \
@@ -164,13 +183,91 @@
     }                                                                       \
   } while ( 0 )
 
-// Trace Thing.  This just puts the source location, thing text, and a
-// newline around PT().
-#define TT(thing)                            \
-  do {                                       \
-    printf ("%s:%i:%s: " #thing ": ", FLFT); \
-    PT (thing);                              \
-    printf ("\n");                           \
-  } while ( 0 );
+// Try to Print Labeled thing.  Like PT(), but precedes the value with
+// "thing: ".
+#define PL(thing)                                                   \
+   do {                                                             \
+     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "%s: ", #thing); \
+     PT (thing);                                                    \
+   } while ( 0 )
+
+// Try to Dump Thing.  Like PL(), but also outputs a newline after the value.
+#define DT(thing)                                         \
+   do {                                                   \
+     PL (thing);                                          \
+     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "\n"); \
+   } while ( 0 )
+
+// Try to Trace Thing.  Like DT(), but also add the source location as
+// a prefix.
+#define TT(thing)                                                       \
+   do {                                                                 \
+     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
+     DT (thing);                                                        \
+   } while ( 0 );
+
+// Try to Trace thing then Die.
+#define TD(thing)        \
+  do {                   \
+    TT (thing);          \
+    exit (EXIT_FAILURE); \
+  } while ( 0 )
+
+// Try to Print Thing in Hex.  Like PT(), but only works for unsigned
+// integer types and outputs the value in hex.
+#define PTX(thing)                                                        \
+   do {                                                                   \
+     _Pragma ("GCC diagnostic push");                                     \
+     _Pragma ("GCC diagnostic error \"-Wshadow\"");                       \
+     bool XxX_already_matched_ = false;                                   \
+     typeof (thing) XxX_et_ = thing;   /* thing evaluted only here */     \
+     _Pragma ("GCC diagnostic pop");                                      \
+     WIMCUPSMC ( uint8_t         , "0x%02" PRIx8  );                      \
+     WIMCUPSMC ( uint16_t        , "0x%04" PRIx16 );                      \
+     WIMCUPSMC ( uint32_t        , "0x%08" PRIx32 );                      \
+     if ( ! XxX_already_matched_ ) {                                      \
+       printf ("\n");            /* Flush and existing stdout output */   \
+       fprintf (stderr, "\n");   /* Flush and existing stderr output */   \
+       fprintf (                                                          \
+           stderr,                                                        \
+           "%s:%i:%s: "                                                   \
+           "error: PTX() macro doesn't know how to print things of type " \
+           "typeof (" #thing ")\n",                                       \
+           FLFT );                                                        \
+       abort ();                                                          \
+     }                                                                    \
+   } while ( 0 )
+
+// Try to Print Labeled thing in Hex.  Like PL(), but only works for
+// unsigned integer types and outputs the value in hex.
+#define PLX(thing)                                                  \
+   do {                                                             \
+     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "%s: ", #thing); \
+     PTX (thing);                                                   \
+   } while ( 0 )
+
+// Try to Dump thing in Hex.  Like DT(), but only works for unsigned integer
+// types and outputs the value in hex.
+#define DTX(thing)                                        \
+   do {                                                   \
+     PLX (thing);                                         \
+     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "\n"); \
+   } while ( 0 )
+
+// Try to Trace Thing in Hex.  Like TT(), but only works for unsigned
+// integer types and outputs the value in hex.
+#define TTX(thing)                                                      \
+   do {                                                                 \
+     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
+     DTX (thing);                                                       \
+   } while ( 0 );
+
+// Try to Trace thing (in Hex) then Die.  Like TD(), but only works for
+// unsigned integer types and outputs the value in hex.
+#define TDX(thing)       \
+  do {                   \
+    TTX (thing);         \
+    exit (EXIT_FAILURE); \
+  } while ( 0 )
 
 #endif   // INSTRUMENT_FORMAT_FREE_PRINT_H
