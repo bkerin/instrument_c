@@ -18,7 +18,7 @@
 //     functions out of existance.  It's probably not an issue for shared
 //     libraries because exported symbols should be safe.  I like to compile
 //     twice, once with -O2 and once with -O0, since some useful warnings
-//     only fire with one or the other.
+//     only fire with one or the other (on gcc at least).
 //
 //   * For what_func() to work right when looking up pointers to functions in
 //     shared librares, -fPIC is required for library *AND* client compilation.
@@ -78,7 +78,7 @@
 // Caveats:
 //
 //   * Stack unwinding involves heuristics.  Callers can do things that defeat
-//     it.  If it looks like this function is lying to you it probably is.
+//     it.  If it looks like this routine is lying to you it probably is.
 //
 //   * This function doesn't make any effort to backtrace through separate
 //     (shared or dynamically loaded) libraries.  FIXMELATER: In theory it

@@ -248,6 +248,8 @@ what_func (void *func_addr)
         func_addr,
         temp_file );
   // Careful: testing for grep no-match return code needs WEXITSTATUS()
+  // FIXME: this is only testing that tee worked, could do better with
+  // set -o pipefail on back at least
   assert (return_code == 0);
  
   // If we found a match using nm on the executable, we're done.
