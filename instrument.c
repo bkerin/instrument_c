@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <execinfo.h>
+#include <inttypes.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -73,7 +74,7 @@ open_tmp_file (char *template)
 
 #ifdef __GNUC__
 #  define MAYBE_PRINTF_ATTRIBUTE(format_pos, first_other_pos) \
-    __attribute__ ((format (printf, format_pos, first_other_pos)));
+    __attribute__ ((format (printf, format_pos, first_other_pos)))
 #else
 #  define MAYBE_PRINTF_ATTRIBUTE(format, first_other)
 #endif
@@ -145,7 +146,7 @@ backtrace_with_line_numbers (void)
   for ( ii = 1 ; ii < btrace_size ; ii++ ) {   // Skip 0 because that's us
     // - 1 because we want the call site, not the return address.  This is a 
     // heuristic and the caller could defeat it with a synthesized address.
-    fprintf (tfp, "%p\n", btrace_array[ii] - 1);
+    fprintf (tfp, "%p\n", ((void *) ((uintptr_t) btrace_array[ii] - 1)));
   } 
   return_code = fclose (tfp);
   assert (return_code == 0);

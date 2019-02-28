@@ -25,7 +25,13 @@
 //     FIXMELATER: it's only needed for clients because of dladdr() bugs, if
 //     dladdr() gets fixed this requirement can be removed
 //
-//   * -Wall, -Wextra, and -Werror aren't required but they make life better
+//   * -Wall, -Wextra, -Wformat-signedness, and -Werror aren't required but
+//     they make life better.  In my old age I've come to believe in
+//     -Wconversion as well (after debugging signed*unsigned bugs created by
+//     the best C programmer I've ever seen, https://github.com/ldeniau).
+//     The C integer type promotion rules are so counterintuitive with
+//     respect to the containment of the sets they model that latent bugs
+//     preventable by -Wconversion are guaranteed to happen eventually.
 
 #ifndef INSTRUMENT_H
 #define INSTRUMENT_H
@@ -102,17 +108,17 @@ backtrace_with_line_numbers (void);
 #    define INSTRUMENT_MAYBE_EXPECT_FALSE(cond) (cond)
 #  endif
 
-#  define ASSERT_BT(cond)                                                    \
-    do {                                                                     \
-      if ( INSTRUMENT_MAYBE_EXPECT_FALSE (!(cond)) ) {                       \
-        fprintf (                                                            \
-            stderr,                                                          \
-            "%s: %s:%u: %s: Assertion ` " #cond "' failed.  Backtrace:\n%s", \
-            program_invocation_short_name,                                   \
-            FLFT,                                                            \
-            backtrace_with_line_numbers() );                                 \
-        abort ();                                                            \
-      }                                                                      \
+#  define ASSERT_BT(cond)                                                   \
+    do {                                                                    \
+      if ( INSTRUMENT_MAYBE_EXPECT_FALSE (!(cond)) ) {                      \
+        fprintf (                                                           \
+            stderr,                                                         \
+            "%s: %s:%i:%s: Assertion ` " #cond "' failed.  Backtrace:\n%s", \
+            program_invocation_short_name,                                  \
+            FLFT,                                                           \
+            backtrace_with_line_numbers() );                                \
+        abort ();                                                           \
+      }                                                                     \
     } while ( 0 )
 
 #else
