@@ -32,6 +32,8 @@ CPPFLAGS = -D_GNU_SOURCE
 # Uncomment to try format-free print stuff in instrument_format_free_print.h.
 #CPPFLAGS += -DHAVE_INSTRUMENT_FORMAT_FREE_PRINT_H
 
+CFLAGS = -Wall -Wextra -Werror -Wformat-signedness -Wpointer-arith -g -fPIC -O0
+
 # Uncomment this (and also the line above that defines
 # HAVE_INSTRUMENT_FORMAT_FREE_PRINT_H) to try the format-free printf extension
 # demo in instrument_pt_extensions.h.  Note that unlike the other headers
@@ -45,8 +47,8 @@ CPPFLAGS = -D_GNU_SOURCE
 $(OBJS): %.o: %.c $(HEADERS) Makefile
 	# See the comments in instrument.h for the reasons for these options
 	# and for the double build.
-	$(CC) -c $(CPPFLAGS) -Wall -Wextra -Werror -g -O2 -fPIC $< -o $@
-	$(CC) -c $(CPPFLAGS) -Wall -Wextra -Werror -g -O0 -fPIC $< -o $@
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -O2 $< -o $@   # To trigger errs/warns
+	$(CC) -c $(CPPFLAGS) $(CFLAGS)     $< -o $@
 
 # Shared library for demonstration purposes
 libdemo_shared_lib.so: demo_shared_lib.o
