@@ -1,4 +1,7 @@
 
+include sanity.mk
+
+
 # Recipies for packing up and distributing the instrument source library.
 # It's super simple so the package benefits from having only the sources,
 # not the related article or maintainer stuff.
