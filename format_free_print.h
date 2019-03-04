@@ -19,8 +19,8 @@
 #  error included from somewhere other than instrument_.h
 #endif
 
-#ifndef INSTRUMENT_FORMAT_FREE_PRINT_H
-#define INSTRUMENT_FORMAT_FREE_PRINT_H
+#ifndef FORMAT_FREE_FREE_PRINT_H
+#define FORMAT_FREE_FREE_PRINT_H
 
 #ifndef __GNUC__
 #  error GCC extensions are required but __GNUC__ is not defined
@@ -33,23 +33,23 @@
 #include <wchar.h>
 
 // Some might preferr to #define this such that output goes to stderr
-#ifndef INSTRUMENT_FORMAT_FREE_PRINT_STREAM
-#  define INSTRUMENT_FORMAT_FREE_PRINT_STREAM stdout
-#endif // INSTRUMENT_FORMAT_FREE_PRINT_STREAM
+#ifndef FORMAT_FREE_FREE_PRINT_STREAM
+#  define FORMAT_FREE_FREE_PRINT_STREAM stdout
+#endif // FORMAT_FREE_FREE_PRINT_STREAM
 
 // Default to use 6 significant digits (the default for %g format output
 // in printf()).
-#ifndef INSTRUMENT_FORMAT_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
-#  define INSTRUMENT_FORMAT_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS "6"
-#endif // INSTRUMENT_FORMAT_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS 
+#ifndef FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
+#  define FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS "6"
+#endif // FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS 
 
 // This shouldn't be needed for format-free printing of most basic
 // types since they should already be on the list.  See the sample
 // instrument_pt_extensions.h for an example of how this works.
 #ifdef HAVE_INSTRUMENT_PT_EXTENSIONS_H
-#  define INSTRUMENT_INSIDE_INSTRUMENT_FORMAT_FREE_PRINT_H
+#  define INSTRUMENT_INSIDE_FORMAT_FREE_FREE_PRINT_H
 #  include "instrument_pt_extensions.h"
-#  undef  INSTRUMENT_INSIDE_INSTRUMENT_FORMAT_FREE_PRINT_H
+#  undef  INSTRUMENT_INSIDE_FORMAT_FREE_FREE_PRINT_H
 #  ifndef INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS
 #    error INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS not defined
 #  endif
@@ -103,7 +103,7 @@
           (void) 0                                                       \
         ),                                                               \
         fprintf (                                                        \
-          INSTRUMENT_FORMAT_FREE_PRINT_STREAM,                           \
+          FORMAT_FREE_FREE_PRINT_STREAM,                                 \
           CEDOTTM (XxX_et_, type, (format), "%s"),                       \
           CEDOTTM (XxX_et_, type, XxX_et_, "i_am_never_seen") ),         \
         XxX_already_matched_ = true                                      \
@@ -111,7 +111,7 @@
       ((void) 0) )
 
 // Convenience alias.  Causes a name clash if clients name something IFFPFSD :)
-#define IFFPFSD INSTRUMENT_FORMAT_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
+#define IFFPFSD FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
 
 // FIXME: these FIXME apply to the stuff in cduino as well
 // FIXME: why is whchar_t [] using %s?  Looks wrong, check.  But I though I
@@ -185,25 +185,25 @@
 
 // Try to Print Labeled thing.  Like PT(), but precedes the value with
 // "thing: ".
-#define PL(thing)                                                   \
-   do {                                                             \
-     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "%s: ", #thing); \
-     PT (thing);                                                    \
+#define PL(thing)                                             \
+   do {                                                       \
+     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "%s: ", #thing); \
+     PT (thing);                                              \
    } while ( 0 )
 
 // Try to Dump Thing.  Like PL(), but also outputs a newline after the value.
-#define DT(thing)                                         \
-   do {                                                   \
-     PL (thing);                                          \
-     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "\n"); \
+#define DT(thing)                                   \
+   do {                                             \
+     PL (thing);                                    \
+     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "\n"); \
    } while ( 0 )
 
 // Try to Trace Thing.  Like DT(), but also add the source location as
 // a prefix.
-#define TT(thing)                                                       \
-   do {                                                                 \
-     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
-     DT (thing);                                                        \
+#define TT(thing)                                                 \
+   do {                                                           \
+     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
+     DT (thing);                                                  \
    } while ( 0 );
 
 // Try to Trace thing then Die.
@@ -240,26 +240,26 @@
 
 // Try to Print Labeled thing in Hex.  Like PL(), but only works for
 // unsigned integer types and outputs the value in hex.
-#define PLX(thing)                                                  \
-   do {                                                             \
-     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "%s: ", #thing); \
-     PTX (thing);                                                   \
+#define PLX(thing)                                            \
+   do {                                                       \
+     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "%s: ", #thing); \
+     PTX (thing);                                             \
    } while ( 0 )
 
 // Try to Dump thing in Hex.  Like DT(), but only works for unsigned integer
 // types and outputs the value in hex.
-#define DTX(thing)                                        \
-   do {                                                   \
-     PLX (thing);                                         \
-     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "\n"); \
+#define DTX(thing)                                  \
+   do {                                             \
+     PLX (thing);                                   \
+     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "\n"); \
    } while ( 0 )
 
 // Try to Trace Thing in Hex.  Like TT(), but only works for unsigned
 // integer types and outputs the value in hex.
-#define TTX(thing)                                                      \
-   do {                                                                 \
-     fprintf (INSTRUMENT_FORMAT_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
-     DTX (thing);                                                       \
+#define TTX(thing)                                                \
+   do {                                                           \
+     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
+     DTX (thing);                                                 \
    } while ( 0 );
 
 // Try to Trace thing (in Hex) then Die.  Like TD(), but only works for
@@ -270,4 +270,4 @@
     exit (EXIT_FAILURE); \
   } while ( 0 )
 
-#endif   // INSTRUMENT_FORMAT_FREE_PRINT_H
+#endif   // FORMAT_FREE_FREE_PRINT_H

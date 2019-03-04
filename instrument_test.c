@@ -71,7 +71,7 @@ main (void)
   printf ("\n");
 
   // See the Makefile if you want to try this optional functionality.
-#ifdef HAVE_INSTRUMENT_FORMAT_FREE_PRINT_H
+#ifdef HAVE_FORMAT_FREE_PRINT_H
   char       *test_string       = "I'm a test string";
   char const *test_const_string = "I'm a test constant string";
 

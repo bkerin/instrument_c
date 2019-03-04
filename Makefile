@@ -29,16 +29,16 @@ CC = $(CCACHE) gcc
 # of how to pass the same cpp flags to cflow as well as the compiler.
 CPPFLAGS = -D_GNU_SOURCE
 
-# Uncomment to try format-free print stuff in instrument_format_free_print.h.
-#CPPFLAGS += -DHAVE_INSTRUMENT_FORMAT_FREE_PRINT_H
+# Uncomment to try format-free print stuff in format_free_print.h.
+#CPPFLAGS += -DHAVE_FORMAT_FREE_PRINT_H
 
 CFLAGS = -Wall -Wextra -Werror -Wformat-signedness -Wpointer-arith -g -fPIC -O0
 
 # Uncomment this (and also the line above that defines
-# HAVE_INSTRUMENT_FORMAT_FREE_PRINT_H) to try the format-free printf extension
-# demo in instrument_pt_extensions.h.  Note that unlike the other headers
-# in this library this one is just a demo: it must be edited in order to
-# be useful.
+# HAVE_FORMAT_FREE_PRINT_H) to try the format-free printf extension demo in
+# instrument_pt_extensions.h.  Note that unlike the other headers in this
+# library this one is just a demo: it must be edited in order to be useful.
+# FIXME: this name should probably change to HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
 #CPPFLAGS += -DHAVE_INSTRUMENT_PT_EXTENSIONS_H
 
 # Object files.  In real life client and library files aren't usually

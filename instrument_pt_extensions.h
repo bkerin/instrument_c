@@ -1,24 +1,24 @@
-// Extensions to PT() from instrument_format_free_print.h
+// Extensions to PT() from format_free_print.h
 //
 // Currently this header just contains a demo that shows how to tell PT()
 // to render new types.
 //
 // There's no reason in principle that printf() must be used: a new version
-// of the WIMCUPSMC() macro from instrument_format_free_print.h could be
-// defined that does something other than printf(), thereby turning PT()
-// into a generic "show-me-this-thing" interface.  In fact, if there is no
-// need to ever use printf() on a type except for instrumentation purposes,
-// it's probably easier to just make a WIMCUPSMC() variant that prints it
-// by calling some other function, thereby avoiding the printf() extension
-// interface (i.e. no need for GNU libc register_printf_specifier()).
-// This is left as an exercise for the reader.
+// of the WIMCUPSMC() macro from format_free_print.h could be defined that
+// does something other than printf(), thereby turning PT() into a generic
+// "show-me-this-thing" interface.  In fact, if there is no need to ever use
+// printf() on a type except for instrumentation purposes, it's probably
+// easier to just make a WIMCUPSMC() variant that prints it by calling
+// some other function, thereby avoiding the printf() extension interface
+// (i.e. no need for GNU libc register_printf_specifier()).  This is left
+// as an exercise for the reader.
 
 // Require the expected context.  Because there is no .c implementation
 // file associated with this header we don't need to allow this file to
 // ever be used outside it's containing header's context (i.e. no need to
 // allow compilation if INSTRUMENT_COMPILATION or so defined).
-#ifndef INSTRUMENT_INSIDE_INSTRUMENT_FORMAT_FREE_PRINT_H
-#  error included from somewhere other than instrument_format_free_print.h
+#ifndef INSTRUMENT_INSIDE_FORMAT_FREE_PRINT_H
+#  error included from somewhere other than format_free_print.h
 #endif
 
 #ifndef INSTRUMENT_PT_EXTENSIONS_H

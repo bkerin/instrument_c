@@ -70,9 +70,9 @@
 // e.g. an int, when the compiler already knows, define this before this
 // header is included for the first time and look in the associated header.
 // This stuff is in its own optional header to avoid frightening people :)
-#ifdef HAVE_INSTRUMENT_FORMAT_FREE_PRINT_H
+#ifdef HAVE_FORMAT_FREE_PRINT_H
 #  define INSTRUMENT_INSIDE_INSTRUMENT_H
-#  include "instrument_format_free_print.h"
+#  include "format_free_print.h"
 #  undef  INSTRUMENT_INSIDE_INSTRUMENT_H
 #endif
 
