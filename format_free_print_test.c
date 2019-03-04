@@ -6,7 +6,7 @@
 #include "format_free_print.h"
 
 static int
-i_return_an_int (void)
+i_return_minus_42_as_an_int (void)
 {
   return -42;
 }
@@ -94,9 +94,11 @@ main (void)
   TT (test_const_int);
   TT (test_const_double);
 
-  TT (i_return_an_int ());
+  TT (i_return_minus_42_as_an_int ());
   // IMPROVEME: might be worth actually checking if all this crazy stuff
   // works for functions of all the other supported return types as well
+
+  TT (2 * i_return_minus_42_as_an_int ());  // Should work for expressions...
 
   TTX (test_hex_uint8);
   TTX (test_hex_uint16);
@@ -118,7 +120,7 @@ main (void)
   printf ("\n");
 
   // See the Makefile in the instrument project top-level dir for info on this:
-#ifdef HAVE_INSTRUMENT_PT_EXTENSIONS_H
+#ifdef HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
   printf ("Trying format-free trace of an extended type...\n");
   Widget test_widget;
   test_widget.name = "test_widget";

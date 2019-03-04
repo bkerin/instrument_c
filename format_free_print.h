@@ -35,20 +35,16 @@
 #  define FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS "6"
 #endif // FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS 
 
-// This shouldn't be needed for format-free printing of most basic
-// types since they should already be on the list.  See the sample
-// instrument_pt_extensions.h for an example of how this works.
-// FIXME: need name changes here: now that format_free_print.h is independent
-// of instrument.h
-#ifdef HAVE_INSTRUMENT_PT_EXTENSIONS_H
-#  define INSTRUMENT_INSIDE_FORMAT_FREE_FREE_PRINT_H
-#  include "instrument_pt_extensions.h"
-#  undef  INSTRUMENT_INSIDE_FORMAT_FREE_FREE_PRINT_H
-#  ifndef INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS
-#    error INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS not defined
+// To use the optional format_free_print_pt_extensions.h a -D must be used
+#ifdef HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
+#  define INSIDE_FORMAT_FREE_PRINT_H
+#  include "format_free_print_pt_extensions.h"
+#  undef  INSIDE_FORMAT_FREE_PRINT_H
+#  ifndef FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS
+#    error FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS not defined
 #  endif
 #else
-#  define INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS
+#  define FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS
 #endif
 
 // File-Line-Function Tuple
@@ -166,7 +162,7 @@
     WIMCUPSMC ( double                , "%." IFFPFSD "g"  );                \
     WIMCUPSMC ( long double           , "%." IFFPFSD "Lg" );                \
     WIMCUPSMC ( void *                , "%p"              );                \
-    INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS;                                    \
+    FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS;                             \
     if ( ! XxX_already_matched_ ) {                                         \
       printf ("\n");            /* Flush and existing stdout output */      \
       fprintf (stderr, "\n");   /* Flush and existing stderr output */      \

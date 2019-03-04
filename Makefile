@@ -74,12 +74,8 @@ CPPFLAGS = -D_GNU_SOURCE
 
 CFLAGS = -Wall -Wextra -Werror -Wformat-signedness -Wpointer-arith -g -fPIC -O0
 
-# Uncomment this to try the format-free printf extension demo in
-# instrument_pt_extensions.h.  Note that unlike the other headers
-# in this library this one is just a demo: it must be edited in
-# order to be useful.  FIXME: this name should probably change to
-# HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
-#CPPFLAGS += -DHAVE_INSTRUMENT_PT_EXTENSIONS_H
+# Only Because we want to test the optional format_free_print_pt_extensions.h
+CPPFLAGS += -DHAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
 
 $(OBJS): %.o: %.c $(HEADERS) Makefile
 	# See the comments in instrument.h for the reasons for these options

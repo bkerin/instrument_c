@@ -1,7 +1,7 @@
 // Extensions to PT() from format_free_print.h
 //
 // Currently this header just contains a demo that shows how to tell PT()
-// to render new types.
+// how to render new types.
 //
 // There's no reason in principle that printf() must be used: a new version
 // of the WIMCUPSMC() macro from format_free_print.h could be defined that
@@ -13,16 +13,12 @@
 // (i.e. no need for GNU libc register_printf_specifier()).  This is left
 // as an exercise for the reader.
 
-// Require the expected context.  Because there is no .c implementation
-// file associated with this header we don't need to allow this file to
-// ever be used outside it's containing header's context (i.e. no need to
-// allow compilation if INSTRUMENT_COMPILATION or so defined).
-#ifndef INSTRUMENT_INSIDE_FORMAT_FREE_PRINT_H
+#ifndef INSIDE_FORMAT_FREE_PRINT_H
 #  error included from somewhere other than format_free_print.h
 #endif
 
-#ifndef INSTRUMENT_PT_EXTENSIONS_H
-#define INSTRUMENT_PT_EXTENSIONS_H
+#ifndef FORMAT_FREE_PRINT_PT_EXTENSIONS_H
+#define FORMAT_FREE_PRINT_PT_EXTENSIONS_H
 
 // Note that _GNU_SOURCE must be defined when the headers providing the
 // extensions we need are included for the *first* time.  This means using the
@@ -50,7 +46,7 @@
 
 // This define is where the additional code to be injected into the PT()
 // macro goes.
-#define INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS                               \
+#define FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS                        \
   /* Here is where your type extensions go.  For example: */              \
   DO_IGNORING_PRINTF_WARNINGS (WIMCUPSMC (Widget *, "%W");)               \
   ;   /* Add final semicolon even though caller does too, for safety.  */
@@ -111,4 +107,4 @@ print_widget_arginfo (struct printf_info const *info, size_t n,
   return 1;
 }
 
-#endif   // INSTRUMENT_PT_EXTENSIONS_H
+#endif   // FORMAT_FREE_PRINT_PT_EXTENSIONS_H
