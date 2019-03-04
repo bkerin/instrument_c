@@ -7,8 +7,6 @@ PREFIX ?= /usr/local
 
 install: libinstrument.a
 	cp $< $(PREFIX)/lib
-	# It's a bit weird to always install all headers whether the user built
-	# with HAVE_FORMAT_FREE_PRINT_H or not, but it simplest
 	cp instrument.h format_free_print.h $(PREFIX)/include
 
 # Like instrument_test from Makefile, but use the installed library.

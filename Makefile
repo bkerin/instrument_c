@@ -1,5 +1,46 @@
 
-# Demo makefile for instrument.h module.
+##### Make Settings, Sanity Measures, and Utility Functions {{{1
+
+# This Makefile requires that the -R/--no-builtin-variables and
+# -r/--no-builtin-variables options be used.  Implicit rules and default
+# variables cause much more trouble and unreadability than they're worth.
+ifeq ($(findstring r,$(MAKEFLAGS)),)
+  $(error This makefile requires the -r/--no-builtin-rules make option)
+endif
+ifeq ($(findstring R,$(MAKEFLAGS)),)
+   $(error This makefile requires the -R/--no-builtin-variables make option)
+endif
+
+# This is sensible stuff for use but could confuse an experienced Make
+# programmer, so it's out front here.
+
+# Delete files produced by rules the commands of which return non-zero.
+.DELETE_ON_ERROR:
+
+# Don't work with -j.  I seems to work but I haven't proven it.
+.NOTPARALLEL:
+
+# Enable a second expsion of variables in the prerequisite parts of rules.
+# So $$(OBJS) will give us what we want if we have made a target- or
+# pattern-local version of OBJS, for example.
+.SECONDEXPANSION:
+
+# Disable old-fashioned suffix rules.
+.SUFFIXES:
+
+# Avoid default goal confusion by essentially disabling default goals.
+PRINT_DEFAULT_GOAL_TRAP_ERROR_MESSAGE =                                       \
+  echo ;                                                                      \
+  echo This build system doesn\'t support default goals.  Please explicitly ; \
+  echo specify a target. ;                                                    \
+  echo
+
+.DEFAULT_GOAL = default_goal_trap
+.PHONY: default_goal_trap
+default_goal_trap:
+	@($(PRINT_DEFAULT_GOAL_TRAP_ERROR_MESSAGE) && false) 1>&2
+
+# }}}1
 
 HEADERS = $(wildcard *.h)
 
@@ -29,40 +70,47 @@ CC = $(CCACHE) gcc
 # of how to pass the same cpp flags to cflow as well as the compiler.
 CPPFLAGS = -D_GNU_SOURCE
 
-# Uncomment to try format-free print stuff in format_free_print.h.
-#CPPFLAGS += -DHAVE_FORMAT_FREE_PRINT_H
+# FIXME: make sure everything builds with as many warns on as possible
 
 CFLAGS = -Wall -Wextra -Werror -Wformat-signedness -Wpointer-arith -g -fPIC -O0
 
-# Uncomment this (and also the line above that defines
-# HAVE_FORMAT_FREE_PRINT_H) to try the format-free printf extension demo in
-# instrument_pt_extensions.h.  Note that unlike the other headers in this
-# library this one is just a demo: it must be edited in order to be useful.
-# FIXME: this name should probably change to HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
+# Uncomment this to try the format-free printf extension demo in
+# instrument_pt_extensions.h.  Note that unlike the other headers
+# in this library this one is just a demo: it must be edited in
+# order to be useful.  FIXME: this name should probably change to
+# HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
 #CPPFLAGS += -DHAVE_INSTRUMENT_PT_EXTENSIONS_H
 
-# Object files.  In real life client and library files aren't usually
-# compiled in the same make recipe, and automatic dependency tracking is
-# often used to compute .c->.h dependencies.
 $(OBJS): %.o: %.c $(HEADERS) Makefile
 	# See the comments in instrument.h for the reasons for these options
 	# and for the double build.
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -O2 $< -o $@   # To trigger errs/warns
-	$(CC) -c $(CPPFLAGS) $(CFLAGS)     $< -o $@
+	$(CC) -c $(CPPFLAGS) $(CFLAGS)     $< -o $@   # To ensure no inline
 
-# Shared library for demonstration purposes
+format_free_print_test: format_free_print_test.o
+	$(CC) $(INCR_LDFLAGS) $+ -o $@
+
+.PHONY: format_free_print_test_run
+run_format_free_print_test: format_free_print_test
+	./$<
+
 libdemo_shared_lib.so: demo_shared_lib.o
 	# See the Program Library Howto for a real life shared lib/DLL setup
 	$(CC) $(INCR_LDFLAGS) -Wl,-soname,$@ -rdynamic -shared $< -o $@
 
-# Executable program exercising the instrument.h interface
 instrument_test: instrument_test.o instrument.o libdemo_shared_lib.so
 	# See the Program Library Howto for a real life shared lib/DLL setup
 	$(CC) $(INCR_LDFLAGS) -Wl,-rpath,`pwd` $+ -ldl -o $@
 
 .PHONY: run_instrument_test
 run_instrument_test: instrument_test
-	./$< || echo Recipe succeeding anyway because ./$< is expected to fail
+	./$<                                                                  \
+        ||                                                                    \
+        (                                                                     \
+          echo ;                                                              \
+          echo WARNING: Recipe succeeding because ./$< is expected to fail, ; \
+          echo its output is shoud be validated *manually*.                   \
+        ) 1>&2
 
 # If you're interested in using cflow or global look at this:
 -include cflow_and_global.mk
@@ -70,8 +118,15 @@ run_instrument_test: instrument_test
 # If you're interested in building and installing libinstrument.a look at this:
 -include instrument_lib.mk
 
+
 .PHONY: clean
 clean:
-	rm -rf *.o *.so* instrument_test core \
-               $(CFLOW_AND_GLOBAL_CLEANFILES) \
-               $(INSTRUMENT_LIB_CLEANFILES)
+	rm -rf                            \
+           *.o                            \
+           *.so*                          \
+           format_free_print_test         \
+           instrument_test                \
+           $(CFLOW_AND_GLOBAL_CLEANFILES) \
+           $(INSTRUMENT_LIB_CLEANFILES)   \
+           core
+

@@ -5,19 +5,11 @@
 // yet but maybe the possibility is there, proceed with caution.
 //
 // IMPROVEME: the C11 _Generic keyword and associated functionality
-// might be useful to make all this cleaner.  I think all that
-// would really be different is the syntax, since _Generic on GCC
-// is almost certainly implemented in terms of the GCC extensions
+// might be useful to make all this cleaner and more portable.  I think
+// all that would really be different is the syntax, since _Generic on
+// GCC is almost certainly implemented in terms of the GCC extensions
 // used here.  The syntax might get lots better though.  See here:
 // http://www.robertgamble.net/2012/01/c11-generic-selections.html
-
-// Require the expected context.  Because there is no .c implementation
-// file associated with this header we don't need to allow this file to
-// ever be used outside it's containing header's context (i.e. no need to
-// allow compilation if INSTRUMENT_COMPILATION or so defined).
-#ifndef INSTRUMENT_INSIDE_INSTRUMENT_H
-#  error included from somewhere other than instrument_.h
-#endif
 
 #ifndef FORMAT_FREE_FREE_PRINT_H
 #define FORMAT_FREE_FREE_PRINT_H
@@ -46,6 +38,8 @@
 // This shouldn't be needed for format-free printing of most basic
 // types since they should already be on the list.  See the sample
 // instrument_pt_extensions.h for an example of how this works.
+// FIXME: need name changes here: now that format_free_print.h is independent
+// of instrument.h
 #ifdef HAVE_INSTRUMENT_PT_EXTENSIONS_H
 #  define INSTRUMENT_INSIDE_FORMAT_FREE_FREE_PRINT_H
 #  include "instrument_pt_extensions.h"
@@ -56,6 +50,9 @@
 #else
 #  define INSTRUMENT_PT_ADDITIONAL_WIMCUPSMCS
 #endif
+
+// File-Line-Function Tuple
+#define FLFT __FILE__, __LINE__, __func__
 
 // Choose Expression Depending On Thing Type Match.  See the use context.
 #define CEDOTTM(thing, type, exp_if_thing_of_type, exp_if_thing_not_of_type) \
@@ -118,7 +115,7 @@
 // went over all this
 // FIXME: probably want const versions of everything in the below list?
 // C11 _Generic approach would require that at least, I think, may need it
-// here as well
+// here as well, actually I have a vague recollection of having checked
 
 // Try to Print Thing (which must be of one of the known types).  This is
 // somewhat adventurous code.  Note that if two types on this list are
@@ -200,6 +197,10 @@
 
 // Try to Trace Thing.  Like DT(), but also add the source location as
 // a prefix.
+// FIXME: in this func and it's ilk, do we want to manually expand the macros
+// to avoid an extra expansion and potential resulting confusion?  But then
+// they have to be manually synced if changed, which is sort of sad.  Or I
+// suppose there's always DEFER() or whatever but god
 #define TT(thing)                                                 \
    do {                                                           \
      fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \

@@ -2,6 +2,8 @@
 //
 // Certain GCC compilation and linking options should be used:
 //
+//   // FIXME: is this really the way to get _GNU_SOURCE_, or do we want
+//   to advise -std=gnuxx or something here?
 //   * -D_GNU_SOURCE is required at compile time (because GNU libc extensions
 //     are required).  Alternately this can be included before the headers
 //     providing the extensions are included for the *first* time (but it's
@@ -29,7 +31,7 @@
 //     they make life better.  In my old age I've come to believe in
 //     -Wconversion as well (after debugging signed*unsigned bugs created by
 //     the best C programmer I've ever seen, https://github.com/ldeniau).
-//     The C integer type promotion rules are so counterintuitive with
+//     The C integer type promotion rules are so counter-intuitive with
 //     respect to the containment of the sets they model that latent bugs
 //     preventable by -Wconversion are guaranteed to happen eventually.
 
@@ -48,11 +50,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// The stuff in this header is the best way to instrument code to see
+// values:
+// FIXME: this header already required _GNU_SOURCE_, what's the diff to
+// GNUC exactly?  Are one or both best speced by -D options, or by -std=gnuxx
+// or something?  If we need what format_free_print.h needs anyway the FLFT
+// def in this file can go away
+#ifdef __GNUC__
+#  include "format_free_print.h"
+#endif
+
 // File-Line-Function Tuple
 #define FLFT __FILE__, __LINE__, __func__
 
 // Check Point: prints source location followed by a newline
 #define CP() printf ("%s:%i:%s: checkpoint\n", FLFT)
+
+// Die Point.  Basically an easy way to turn CP() to assert(0) :)
+#define DP()                                   \
+  do {                                         \
+    printf ("%s:%i:%s: will now die\n", FLFT); \
+    exit (EXIT_FAILURE);                       \
+  } while ( 0 )
+
+// If for some reason format_free_print.h doesn't do what you need these
+// next three might be useful:
 
 // Trace Value: given an expression expr and an unquoted format code, print
 // the source location and expression text and value followed by a newline,
@@ -60,20 +82,26 @@
 #define TV(expr, format_code)                                    \
   printf ("%s:%i:%s: " #expr ": " #format_code "\n", FLFT, expr)
 
+// TV() then Die.  To easily avoid seeing additional garbage output.
+#define TVD(expr, format_code) \
+  do {                         \
+    TV(expr, format_code);     \
+    exit (EXIT_FAILURE);       \
+  } while ( 0 )
+
 // Trace Stuff: print expanded format string in first argument, using values
 // given in remaining arguments, tagged with source location and added newline
 #ifdef __GNUC__   // This one needs GNU comma-swallowing __VA_ARGS__ extension
 #  define TS(fmt, ...) printf ("%s:%i:%s: " fmt "\n", FLFT, ## __VA_ARGS__)
 #endif
 
-// If it annoys you that you have to tell printf() that you're printing
-// e.g. an int, when the compiler already knows, define this before this
-// header is included for the first time and look in the associated header.
-// This stuff is in its own optional header to avoid frightening people :)
-#ifdef HAVE_FORMAT_FREE_PRINT_H
-#  define INSTRUMENT_INSIDE_INSTRUMENT_H
-#  include "format_free_print.h"
-#  undef  INSTRUMENT_INSIDE_INSTRUMENT_H
+// Like TS() then Die.  To easily avoid seeing additional garbage output.
+#ifdef __GNUC__   // This one needs GNU comma-swallowing __VA_ARGS__ extension
+#  define TSD(fmt, ...)                                      \
+     do {                                                    \
+       printf ("%s:%i:%s: " fmt "\n", FLFT, ## __VA_ARGS__); \
+       exit (EXIT_FAILURE);                                  \
+     } while ( 0 )
 #endif
 
 // Get a new string containing a backtrace for the call point.  This is

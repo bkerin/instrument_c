@@ -3,6 +3,7 @@
 *.stamp
 *.c.adoc
 *.h.adoc
+format_free_print_test
 instrument_test
 libinstrument.a
 instrument_test_using_installed_lib
