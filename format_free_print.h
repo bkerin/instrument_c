@@ -103,8 +103,8 @@
       ),                                                                 \
       ((void) 0) )
 
-// Convenience alias.  Causes a name clash if clients name something IFFPFSD :)
-#define IFFPFSD FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
+// Convenience alias.  Causes a name clash if clients name something FFPFSD :)
+#define FFPFSD FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
 
 // FIXME: these FIXME apply to the stuff in cduino as well
 // FIXME: why is whchar_t [] using %s?  Looks wrong, check.  But I though I
@@ -158,9 +158,9 @@
     WIMCUPSMC ( long long int         , "%lli"            );                \
     WIMCUPSMC ( long long unsigned int, "%llu"            );                \
     WIMCUPSMC ( bool                  , "%i"              );                \
-    WIMCUPSMC ( float                 , "%." IFFPFSD "g"  );                \
-    WIMCUPSMC ( double                , "%." IFFPFSD "g"  );                \
-    WIMCUPSMC ( long double           , "%." IFFPFSD "Lg" );                \
+    WIMCUPSMC ( float                 , "%." FFPFSD "g"   );                \
+    WIMCUPSMC ( double                , "%." FFPFSD "g"   );                \
+    WIMCUPSMC ( long double           , "%." FFPFSD "Lg"  );                \
     WIMCUPSMC ( void *                , "%p"              );                \
     FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS;                             \
     if ( ! XxX_already_matched_ ) {                                         \
