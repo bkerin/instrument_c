@@ -107,11 +107,12 @@
 #define FFPFSD FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
 
 // FIXME: these FIXME apply to the stuff in cduino as well
-// FIXME: why is whchar_t [] using %s?  Looks wrong, check.  But I though I
-// went over all this
-// FIXME: probably want const versions of everything in the below list?
-// C11 _Generic approach would require that at least, I think, may need it
-// here as well, actually I have a vague recollection of having checked
+
+// FIXMELATER: Seems like we would want const versions of everything in the
+// below list.  C11 _Generic approach sounds like it would require it at
+// least.  However for the current approach it doesn't work for most types
+// (the exceptions being pointer types char const * and wchar_t const *
+// which need the const version to exist).  Seems like silly compiler buggers.
 
 // Try to Print Thing (which must be of one of the known types).  This is
 // somewhat adventurous code.  Note that if two types on this list are
@@ -127,6 +128,7 @@
 #define PT(thing)                                                           \
   do {                                                                      \
     bool XxX_ffp_already_matched_ = false;                                  \
+    /* FIXME: does this need a DEFER() or something for macros?: */         \
     typeof (thing) XxX_ffp_et_ = thing;   /* thing evaluted only here */    \
     WIMCUPSMC ( char                  , "%c"              );                \
     WIMCUPSMC ( char *                , "%s"              );                \
@@ -136,7 +138,7 @@
     /*WIMCUPSMC ( wchar_t               , "%lc"      );*/                   \
     WIMCUPSMC ( wchar_t *             , "%ls"             );                \
     WIMCUPSMC ( wchar_t const *       , "%ls"             );                \
-    WIMCUPSMC ( wchar_t []            , "%s"              );                \
+    WIMCUPSMC ( wchar_t []            , "%ls"             );                \
     WIMCUPSMC ( int8_t                , "%" PRIi8         );                \
     WIMCUPSMC ( int16_t               , "%" PRIi16        );                \
     WIMCUPSMC ( int32_t               , "%" PRIi32        );                \
@@ -151,11 +153,12 @@
     WIMCUPSMC ( long long int         , "%lli"            );                \
     WIMCUPSMC ( long long unsigned int, "%llu"            );                \
     WIMCUPSMC ( bool                  , "%i"              );                \
-    /* Note that C often promotes float to double, but this is tested: */   \
+    /* Note that C often promotes float to double, but this *is* tested: */ \
     WIMCUPSMC ( float                 , "%." FFPFSD "g"   );                \
     WIMCUPSMC ( double                , "%." FFPFSD "g"   );                \
     WIMCUPSMC ( long double           , "%." FFPFSD "Lg"  );                \
     WIMCUPSMC ( void *                , "%p"              );                \
+    WIMCUPSMC ( void const *          , "%p"              );                \
     FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS;                             \
     if ( ! XxX_ffp_already_matched_ ) {                                     \
       printf ("\n");            /* Flush any existing stdout output */      \
@@ -170,42 +173,36 @@
     }                                                                       \
   } while ( 0 )
 
-// Try to Print Labeled thing.  Like PT(), but precedes the value with
-// "thing: ".
+// Print Labeled thing, i.e. print stringified argument then do PT()
 #define PL(thing)                                        \
    do {                                                  \
      fprintf (FORMAT_FREE_PRINT_STREAM, "%s: ", #thing); \
      PT (thing);                                         \
    } while ( 0 )
 
-// Try to Dump Thing.  Like PL(), but also outputs a newline after the value.
+// Dump Thing, i.e. do PL() followed by a newline
 #define DT(thing)                              \
    do {                                        \
      PL (thing);                               \
      fprintf (FORMAT_FREE_PRINT_STREAM, "\n"); \
    } while ( 0 )
 
-// Try to Trace Thing.  Like DT(), but also add the source location as
-// a prefix.
-// FIXME: in this func and it's ilk, do we want to manually expand the macros
-// to avoid an extra expansion and potential resulting confusion?  But then
-// they have to be manually synced if changed, which is sort of sad.  Or I
-// suppose there's always DEFER() or whatever but god
+// Trace Thing, i.e. print source location then do DT()
 #define TT(thing)                                            \
    do {                                                      \
      fprintf (FORMAT_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
      DT (thing);                                             \
    } while ( 0 );
 
-// Try to Trace thing then Die.
+// Do TT() then Die
 #define TD(thing)        \
   do {                   \
     TT (thing);          \
     exit (EXIT_FAILURE); \
   } while ( 0 )
 
-// Try to Print Thing in Hex.  Like PT(), but only works for unsigned
-// integer types and outputs the value in hex.
+// Try to Print Thing in heX.  Like PT(), but only works for unsigned
+// integer types and outputs the value in hex with a "0x" prefix.
 #define PTX(thing)                                                        \
    do {                                                                   \
      bool XxX_ffp_already_matched_ = false;                               \
@@ -226,32 +223,28 @@
      }                                                                    \
    } while ( 0 )
 
-// Try to Print Labeled thing in Hex.  Like PL(), but only works for
-// unsigned integer types and outputs the value in hex.
+// Print Labeled thing in heX, i.e. print stringified argument then do PTX()
 #define PLX(thing)                                       \
    do {                                                  \
      fprintf (FORMAT_FREE_PRINT_STREAM, "%s: ", #thing); \
      PTX (thing);                                        \
    } while ( 0 )
 
-// Try to Dump thing in Hex.  Like DT(), but only works for unsigned integer
-// types and outputs the value in hex.
+// Dump thing in heX, i.e. do PLX() then output a newline
 #define DTX(thing)                             \
    do {                                        \
      PLX (thing);                              \
      fprintf (FORMAT_FREE_PRINT_STREAM, "\n"); \
    } while ( 0 )
 
-// Try to Trace Thing in Hex.  Like TT(), but only works for unsigned
-// integer types and outputs the value in hex.
+// Trace Thing in heX, i.e. print source location then do DTX()
 #define TTX(thing)                                           \
    do {                                                      \
      fprintf (FORMAT_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
      DTX (thing);                                            \
    } while ( 0 );
 
-// Try to Trace thing (in Hex) then Die.  Like TD(), but only works for
-// unsigned integer types and outputs the value in hex.
+// Do TTX() then Die
 #define TDX(thing)       \
   do {                   \
     TTX (thing);         \
