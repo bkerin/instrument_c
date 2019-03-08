@@ -35,13 +35,11 @@ CPPFLAGS = -D_GNU_SOURCE
 
 # Source libs must build cleanly with strictest possible warning settings.
 # Generally format_free_print.h and instrument.h do the excruciatingly
-# correct things required to avoid these warnings, but there's one
-# exception: the warning about function to object pointer casts that
-# are activated by -Wpedantic are explicitly suppressed using a _Pragma
-# on GCC.  So if you really are on a machine with a separate address space
-# for functions be warned :) IMPROVEME: Sadly missing from this list
-# is declaration-after-statement which I've come to think of as always
-# resulting in better code readability.
+# correct things required to avoid these warnings, but there's one exception:
+# the warning about function to object pointer casts that are activated by
+# -Wpedantic are explicitly suppressed using a _Pragma on GCC.  So if you
+# really are on a machine with a separate address space for functions be
+# warned :).
 STACK_USAGE_LIMIT = 64042   # Just for -Wstack-usage pass check
 SUPPORTED_WARNING_OPTIONS =                        \
   -pedantic-errors                                 \
@@ -59,6 +57,7 @@ SUPPORTED_WARNING_OPTIONS =                        \
                   cast-align=strict                \
                   conversion                       \
                   date-time                        \
+                  declaration-after-statement      \
                   disabled-optimization            \
                   duplicated-branches              \
                   duplicated-cond                  \
@@ -89,6 +88,7 @@ SUPPORTED_WARNING_OPTIONS =                        \
                   pedantic                         \
                   pointer-arith                    \
                   redundant-decls                  \
+                  shadow=compatible-local          \
                   shadow=global                    \
                   shadow=local                     \
                   stack-protector                  \

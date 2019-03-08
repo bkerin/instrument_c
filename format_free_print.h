@@ -61,14 +61,14 @@
 
 // Not for independent use (see the existing call context).  Stands for
 // Weird If Matched Check Unmatched Print Set Matched Chunk :) The outer
-// CEDOTTM() evaluates to an only-one-match-allowed printf() if XxX_et_
+// CEDOTTM() evaluates to an only-one-match-allowed printf() if XxX_ffp_et_
 // (Evaluated Thing) is of type, or a void expression otherwise.  The inner
 // CEDOTTM() calls are needed because currently GCC still syntax-checks
-// the non-selected expression arguments of __builtin_choose_expr(), so
-// we have to make sure a valid format-XxX_et_ pair get fed to printf()
-// regardless of the type-ness of XxX_et_ even at the point where we
-// already know (because of the surrounding CEDOTTM() call) that XxX_et_
-// is of type (the pair being format-XxX_et_ for the case that actually
+// the non-selected expression arguments of __builtin_choose_expr(), so we
+// have to make sure a valid format-XxX_ffp_et_ pair get fed to printf()
+// regardless of the type-ness of XxX_ffp_et_ even at the point where we
+// already know (because of the surrounding CEDOTTM() call) that XxX_ffp_et_
+// is of type (the pair being format-XxX_ffp_et_ for the case that actually
 // happens, or "%s"-"i_am_never_seen" for the other).  Why do all this?
 // Because it gets us a warning if one of the entries in the list in PT()
 // has a type-format mismatch that GCC would normally warn about.  There are
@@ -76,11 +76,11 @@
 // it since bugs in debugging code are especially annoying.
 #define WIMCUPSMC(type, format)                                          \
   CEDOTTM (                                                              \
-      XxX_et_,                                                           \
+      XxX_ffp_et_,                                                       \
       type,                                                              \
       (                                                                  \
         (                                                                \
-          XxX_format_free_print_already_matched_ ?                       \
+          XxX_ffp_already_matched_ ?                                     \
           (                                                              \
             fprintf (stderr, "\n"),                                      \
             fprintf (                                                    \
@@ -97,9 +97,9 @@
         ),                                                               \
         fprintf (                                                        \
           FORMAT_FREE_PRINT_STREAM,                                      \
-          CEDOTTM (XxX_et_, type, (format), "%s"),                       \
-          CEDOTTM (XxX_et_, type, XxX_et_, "i_am_never_seen") ),         \
-        XxX_format_free_print_already_matched_ = true                    \
+          CEDOTTM (XxX_ffp_et_, type, (format), "%s"),                   \
+          CEDOTTM (XxX_ffp_et_, type, XxX_ffp_et_, "i_am_never_seen") ), \
+        XxX_ffp_already_matched_ = true                                  \
       ),                                                                 \
       ((void) 0) )
 
@@ -113,8 +113,6 @@
 // C11 _Generic approach would require that at least, I think, may need it
 // here as well, actually I have a vague recollection of having checked
 
-// FIXME: get hid of the -Wshadow push garbage I think
-
 // Try to Print Thing (which must be of one of the known types).  This is
 // somewhat adventurous code.  Note that if two types on this list are
 // synonyms a run-time error is triggered if an attempt is made to print
@@ -123,20 +121,13 @@
 // printed by this interface is explicitly set here and cannot be changed
 // (in fact not having to specify it every time is the point), so a separate
 // version of this macro would be required to e.g. render ints in hex.
-// It might be better to use __auto_type rather than typeof() here, but
-// it doesn't work from C++ and would only help in the very minority case
-// of a variably modified type that can't tolerate being evaluated more
-// than once.  We use weird "XxX_" prefix and "_" postfix and _Pragma()
-// to achieve a reasonably approximation of a hygenic macro in C: It fails
-// at compile-time when any shadowing happens even if it isn't relevant to
-// the PT() being done, but at least it can't silently screw up.
+// It might be better to use __auto_type rather than typeof() here, but it
+// doesn't work from C++ and would only help in the very minority case of a
+// variably modified type that can't tolerate being evaluated more than once.
 #define PT(thing)                                                           \
   do {                                                                      \
-    _Pragma ("GCC diagnostic push");                                        \
-    _Pragma ("GCC diagnostic error \"-Wshadow\"");                          \
-    bool XxX_format_free_print_already_matched_ = false;                    \
-    typeof (thing) XxX_et_ = thing;   /* thing evaluted only here */        \
-    _Pragma ("GCC diagnostic pop");                                         \
+    bool XxX_ffp_already_matched_ = false;                                  \
+    typeof (thing) XxX_ffp_et_ = thing;   /* thing evaluted only here */    \
     WIMCUPSMC ( char                  , "%c"              );                \
     WIMCUPSMC ( char *                , "%s"              );                \
     WIMCUPSMC ( char const *          , "%s"              );                \
@@ -166,7 +157,7 @@
     WIMCUPSMC ( long double           , "%." FFPFSD "Lg"  );                \
     WIMCUPSMC ( void *                , "%p"              );                \
     FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS;                             \
-    if ( ! XxX_format_free_print_already_matched_ ) {                       \
+    if ( ! XxX_ffp_already_matched_ ) {                                     \
       printf ("\n");            /* Flush any existing stdout output */      \
       fprintf (stderr, "\n");   /* Flush any existing stderr output */      \
       fprintf (                                                             \
@@ -217,15 +208,12 @@
 // integer types and outputs the value in hex.
 #define PTX(thing)                                                        \
    do {                                                                   \
-     _Pragma ("GCC diagnostic push");                                     \
-     _Pragma ("GCC diagnostic error \"-Wshadow\"");                       \
-     bool XxX_format_free_print_already_matched_ = false;                 \
-     typeof (thing) XxX_et_ = thing;   /* thing evaluted only here */     \
-     _Pragma ("GCC diagnostic pop");                                      \
+     bool XxX_ffp_already_matched_ = false;                               \
+     typeof (thing) XxX_ffp_et_ = thing;   /* thing evaluted only here */ \
      WIMCUPSMC ( uint8_t         , "0x%02" PRIx8  );                      \
      WIMCUPSMC ( uint16_t        , "0x%04" PRIx16 );                      \
      WIMCUPSMC ( uint32_t        , "0x%08" PRIx32 );                      \
-     if ( ! XxX_format_free_print_already_matched_ ) {                    \
+     if ( ! XxX_ffp_already_matched_ ) {                                  \
        printf ("\n");            /* Flush and existing stdout output */   \
        fprintf (stderr, "\n");   /* Flush and existing stderr output */   \
        fprintf (                                                          \

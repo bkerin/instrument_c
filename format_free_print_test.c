@@ -49,6 +49,10 @@ main (void)
   int const    test_const_int    = -42;
   long double const test_const_long_double = 42.42L;
 
+#ifdef HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
+  Widget test_widget;
+#endif
+
   printf ("Trying format-free print and trace macros...\n");
 
   TT (test_string);
@@ -128,7 +132,6 @@ main (void)
   // See the Makefile in the instrument project top-level dir for info on this:
 #ifdef HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
   printf ("Trying format-free trace of an extended type...\n");
-  Widget test_widget;
   test_widget.name = strdup ("test_widget");
   // Normally this next call would probably go somewhere else.
   register_printf_specifier ('W', print_widget, print_widget_arginfo);
