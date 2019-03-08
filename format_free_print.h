@@ -106,13 +106,13 @@
 // Convenience alias.  Causes a name clash if clients name something FFPFSD :)
 #define FFPFSD FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
 
-// FIXME: these FIXME apply to the stuff in cduino as well
-
-// FIXMELATER: Seems like we would want const versions of everything in the
-// below list.  C11 _Generic approach sounds like it would require it at
-// least.  However for the current approach it doesn't work for most types
-// (the exceptions being pointer types char const * and wchar_t const *
-// which need the const version to exist).  Seems like silly compiler buggers.
+// FIXMELATER: Seems like we would want const versions of everything in
+// the below list.  C11 _Generic approach sounds like it would require
+// it at least.  However for the current approach it isn't necessary and
+// doesn't work for most types because the const types are apparently
+// viewed as synonymous (the exceptions being pointer types char const *
+// and wchar_t const * which need the const version to exist).  Seems like
+// silly compiler buggers but whatever.
 
 // Try to Print Thing (which must be of one of the known types).  This is
 // somewhat adventurous code.  Note that if two types on this list are
@@ -128,14 +128,13 @@
 #define PT(thing)                                                           \
   do {                                                                      \
     bool XxX_ffp_already_matched_ = false;                                  \
-    /* FIXME: does this need a DEFER() or something for macros?: */         \
     typeof (thing) XxX_ffp_et_ = thing;   /* thing evaluted only here */    \
     WIMCUPSMC ( char                  , "%c"              );                \
     WIMCUPSMC ( char *                , "%s"              );                \
     WIMCUPSMC ( char const *          , "%s"              );                \
     WIMCUPSMC ( char []               , "%s"              );                \
-    /* It seems that wchar_t is not distinct from int32_t, so it's out */   \
-    /*WIMCUPSMC ( wchar_t               , "%lc"      );*/                   \
+    /* It seems that wchar_t is not distinct from int32_t:  */              \
+    /*WIMCUPSMC ( wchar_t               , "%lc"           );*/              \
     WIMCUPSMC ( wchar_t *             , "%ls"             );                \
     WIMCUPSMC ( wchar_t const *       , "%ls"             );                \
     WIMCUPSMC ( wchar_t []            , "%ls"             );                \
@@ -207,9 +206,11 @@
    do {                                                                   \
      bool XxX_ffp_already_matched_ = false;                               \
      typeof (thing) XxX_ffp_et_ = thing;   /* thing evaluted only here */ \
+     /* Note that these handle e.g. unsigned short, unsigned int, etc: */ \
      WIMCUPSMC ( uint8_t         , "0x%02" PRIx8  );                      \
      WIMCUPSMC ( uint16_t        , "0x%04" PRIx16 );                      \
      WIMCUPSMC ( uint32_t        , "0x%08" PRIx32 );                      \
+     WIMCUPSMC ( uint64_t        , "0x%016" PRIx64 );                     \
      if ( ! XxX_ffp_already_matched_ ) {                                  \
        printf ("\n");            /* Flush and existing stdout output */   \
        fprintf (stderr, "\n");   /* Flush and existing stderr output */   \

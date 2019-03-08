@@ -21,10 +21,10 @@ i_return_minus_42_as_an_int (void)
 int
 main (void)
 {
-  char          *test_string             = strdup ("A test string");
-  char const    *test_const_string       = "A test constant string";
-  wchar_t       *test_wchar_string       = wcsdup(L"A test wchar_t string");
-  wchar_t const *test_wchar_const_string = L"A test wchar_t const string";
+  char          *test_string             = strdup ("A string");
+  char const    *test_const_string       = "A constant string";
+  wchar_t       *test_wchar_string       = wcsdup(L"A wchar_t string");
+  wchar_t const *test_wchar_const_string = L"A wchar_t const string";
 
   int                    test_int                     = -42;
   short int              test_short_int               = -42;
@@ -54,6 +54,7 @@ main (void)
   uint8_t                test_hex_uint8               = 0x42;
   uint16_t               test_hex_uint16              = 0xab42;
   uint32_t               test_hex_uint32              = 0x00abcd42;
+  uint64_t               test_hex_uint64              = 0x00abcd4200dcba42;
 
   // Constant int and floating point types seem to work fine without explicit
   // mentions of the const types in the list in the PT() definition.
@@ -117,9 +118,11 @@ main (void)
   TT (true);
   printf ("\n");
   
+  // Note that unsigned integer types which aren't size-specifice.g.
   TTX (test_hex_uint8);
   TTX (test_hex_uint16);
   TTX (test_hex_uint32);
+  TTX (test_hex_uint64);
   printf ("\n");
 
   TT (test_float);
