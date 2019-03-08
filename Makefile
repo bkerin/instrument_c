@@ -23,15 +23,102 @@ OBJS = $(patsubst %.c,%.o,$(SOURCES))
 # you'll want to arrange for your final production build to ommit it.
 #INCR_LDFLAGS = -fuse-ld=gold -Wl,--incremental
 
-CC = $(CCACHE) gcc
+CC = $(CCACHE) gcc-8   # Need gcc-8 (or later) to test latest -W options
 
 # We use some GNU libc extension functions.  This also serves as a example
 # of how to pass the same cpp flags to cflow as well as the compiler.
 CPPFLAGS = -D_GNU_SOURCE
 
-# FIXME: make sure everything builds with as many warns on as possible
+# FIXME: Probably make all the quickie things liek PT lowercase, because
+# that's easlier to type ans using upcase for macro names is pointless
+# and passee.  ASSERT_BT also
 
-CFLAGS = -Wall -Wextra -Werror -Wformat-signedness -Wpointer-arith -g -fPIC -O0
+# Source libs must build cleanly with strictest possible warning settings.
+# Generally format_free_print.h and instrument.h do the excruciatingly
+# correct things required to avoid these warnings, but there's one
+# exception: the warning about function to object pointer casts that
+# are activated by -Wpedantic are explicitly suppressed using a _Pragma
+# on GCC.  So if you really are on a machine with a separate address space
+# for functions be warned :) IMPROVEME: Sadly missing from this list
+# is declaration-after-statement which I've come to think of as always
+# resulting in better code readability.
+STACK_USAGE_LIMIT = 64042   # Just for -Wstack-usage pass check
+SUPPORTED_WARNING_OPTIONS =                        \
+  -pedantic-errors                                 \
+  $(addprefix -W,                                  \
+                  aggregate-return                 \
+                  aggressive-loop-optimizations    \
+                  all                              \
+                  alloc-zero                       \
+                  alloca                           \
+                  array-bounds=2                   \
+                  attribute-alias                  \
+                  extra                            \
+                  bad-function-cast                \
+                  cast-qual                        \
+                  cast-align=strict                \
+                  conversion                       \
+                  date-time                        \
+                  disabled-optimization            \
+                  duplicated-branches              \
+                  duplicated-cond                  \
+                  float-equal                      \
+                  format=2                         \
+                  format-overflow=2                \
+                  format-signedness                \
+                  format-truncation=2              \
+                  hsa                              \
+                  implicit-fallthrough=5           \
+                  init-self                        \
+                  inline                           \
+                  invalid-pch                      \
+                  jump-misses-init                 \
+                  logical-op                       \
+                  missing-declarations             \
+                  missing-include-dirs             \
+                  missing-prototypes               \
+                  null-dereference                 \
+                  nested-externs                   \
+                  normalized=nfkc                  \
+                  old-style-definition             \
+                  openmp-simd                      \
+                  overlength-strings               \
+                  packed                           \
+                  padded                           \
+                  parentheses                      \
+                  pedantic                         \
+                  pointer-arith                    \
+                  redundant-decls                  \
+                  shadow=global                    \
+                  shadow=local                     \
+                  stack-protector                  \
+                  stack-usage=$(STACK_USAGE_LIMIT) \
+                  strict-overflow=5                \
+                  strict-prototypes                \
+                  stringop-overflow=4              \
+                  suggest-attribute=cold           \
+                  suggest-attribute=const          \
+                  suggest-attribute=format         \
+                  suggest-attribute=pure           \
+                  suggest-attribute=noreturn       \
+                  suggest-attribute=malloc         \
+                  switch-bool                      \
+                  switch-default                   \
+                  switch-enum                      \
+                  switch-unreachable               \
+                  sync-nand                        \
+                  trampolines                      \
+                  undef                            \
+                  uninitialized                    \
+                  unsuffixed-float-constants       \
+                  unused                           \
+                  unused-macros                    \
+                  unused-parameter                 \
+                  unused-const-variable=2          \
+                  vla                              \
+                  write-strings                    )
+
+CFLAGS = -fstack-protector $(SUPPORTED_WARNING_OPTIONS) -Werror -g -fPIC -O0
 
 # Only Because we want to test the optional format_free_print_pt_extensions.h
 CPPFLAGS += -DHAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
@@ -53,7 +140,7 @@ libdemo_shared_lib.so: demo_shared_lib.o
 	# See the Program Library Howto for a real life shared lib/DLL setup
 	$(CC) $(INCR_LDFLAGS) -Wl,-soname,$@ -rdynamic -shared $< -o $@
 
-instrument_test: instrument_test.o instrument.o libdemo_shared_lib.so
+instrument_test: instrument_test.o libdemo_shared_lib.so
 	# See the Program Library Howto for a real life shared lib/DLL setup
 	$(CC) $(INCR_LDFLAGS) -Wl,-rpath,`pwd` $+ -ldl -o $@
 
@@ -63,8 +150,8 @@ run_instrument_test: instrument_test
         ||                                                                    \
         (                                                                     \
           echo ;                                                              \
-          echo WARNING: Recipe succeeding because ./$< is expected to fail, ; \
-          echo its output is shoud be validated *manually*.                   \
+          echo WARNING: Recipe succeeding because ./$< is expected to fail. ; \
+          echo Its output is shoud be validated *manually*.                   \
         ) 1>&2
 
 # If you're interested in using cflow or global look at this:

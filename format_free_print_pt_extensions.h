@@ -72,8 +72,9 @@ print_widget (
   int len;
 
   // Format the output into a string
-  widget = *((Widget const **) (args[0]));
-  len = asprintf (&buffer, "<Widget %p: %s>", widget, widget->name);
+  widget = *((Widget const *const *) (args[0]));
+  len = asprintf (
+      &buffer, "<Widget %p: %s>", (const void *) widget, widget->name );
   if ( len == -1 ) {
     return -1;
   }

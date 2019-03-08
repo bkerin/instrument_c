@@ -1,7 +1,9 @@
 // Exercise the interface in format_free_print.h
 
+#include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "format_free_print.h"
 
@@ -14,7 +16,7 @@ i_return_minus_42_as_an_int (void)
 int
 main (void)
 {
-  char       *test_string       = "I'm a test string";
+  char       *test_string       = strdup ("I'm a test string");
   char const *test_const_string = "I'm a test constant string";
 
   int                    test_int                     = -42;
@@ -34,9 +36,10 @@ main (void)
   int32_t                test_int32                   = -42;
   int64_t                test_int64                   = -42;
   bool                   test_bool                    = true;
-  float                  test_float                   = 42.42;
-  double                 test_double                  = 42.42;
-  long double            test_long_double             = 42.42;
+  float                  test_float                   = 42.42F;
+  /* Weirdly expressed so we can pass with -Wunsuffixed-float-constants:  */
+  double                 test_double                  = ((double) 42.42L);
+  long double            test_long_double             = 42.42L;
   uint8_t                test_hex_uint8               = 0x42;
   uint16_t               test_hex_uint16              = 0xab42;
   uint32_t               test_hex_uint32              = 0x00abcd42;
@@ -44,13 +47,15 @@ main (void)
   // Constant int and floating point types seem to work fine without explicit
   // mentions of the const types in the list in the PT() definition.
   int const    test_const_int    = -42;
-  double const test_const_double = 42.42;
+  long double const test_const_long_double = 42.42L;
 
   printf ("Trying format-free print and trace macros...\n");
 
   TT (test_string);
+  free (test_string);
+  test_string = NULL;
   TT (test_const_string);
-  TT ("I'm a literal string");  // Fires the char [] handler
+  TT ("I'm a string literal");  // Fires the char [] handler
 
   TT (test_int);
   TT (test_short_int);
@@ -87,12 +92,13 @@ main (void)
   TT (test_long_double);
   PT ("NOTE: the stringified labels of floating point literals aren't\n");
   PT ("subject to printf() rounding, but the values themselves are:\n");
-  TT (42.424211111f);
-  TT (42.424211111);
-  TT (42.424211111d);
+  TT (42.424211111F);
+  /* Weirdly expressed so we can pass with -Wunsuffixed-float-constants:  */
+  TT ((double) 42.424211111L);
+  TT (42.424211111L);
 
   TT (test_const_int);
-  TT (test_const_double);
+  TT (test_const_long_double);
 
   TT (i_return_minus_42_as_an_int ());
   // IMPROVEME: might be worth actually checking if all this crazy stuff
@@ -123,10 +129,12 @@ main (void)
 #ifdef HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
   printf ("Trying format-free trace of an extended type...\n");
   Widget test_widget;
-  test_widget.name = "test_widget";
+  test_widget.name = strdup ("test_widget");
   // Normally this next call would probably go somewhere else.
   register_printf_specifier ('W', print_widget, print_widget_arginfo);
   TT (&test_widget);
+  free (test_widget.name);
+  test_widget.name = NULL;
   printf ("\n");
 #endif
 

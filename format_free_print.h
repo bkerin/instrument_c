@@ -25,9 +25,9 @@
 #include <wchar.h>
 
 // Some might preferr to #define this such that output goes to stderr
-#ifndef FORMAT_FREE_FREE_PRINT_STREAM
-#  define FORMAT_FREE_FREE_PRINT_STREAM stdout
-#endif // FORMAT_FREE_FREE_PRINT_STREAM
+#ifndef FORMAT_FREE_PRINT_STREAM
+#  define FORMAT_FREE_PRINT_STREAM stdout
+#endif // FORMAT_FREE_PRINT_STREAM
 
 // Default to use 6 significant digits (the default for %g format output
 // in printf()).
@@ -80,7 +80,7 @@
       type,                                                              \
       (                                                                  \
         (                                                                \
-          XxX_already_matched_ ?                                         \
+          XxX_format_free_print_already_matched_ ?                       \
           (                                                              \
             fprintf (stderr, "\n"),                                      \
             fprintf (                                                    \
@@ -96,10 +96,10 @@
           (void) 0                                                       \
         ),                                                               \
         fprintf (                                                        \
-          FORMAT_FREE_FREE_PRINT_STREAM,                                 \
+          FORMAT_FREE_PRINT_STREAM,                                      \
           CEDOTTM (XxX_et_, type, (format), "%s"),                       \
           CEDOTTM (XxX_et_, type, XxX_et_, "i_am_never_seen") ),         \
-        XxX_already_matched_ = true                                      \
+        XxX_format_free_print_already_matched_ = true                    \
       ),                                                                 \
       ((void) 0) )
 
@@ -112,6 +112,8 @@
 // FIXME: probably want const versions of everything in the below list?
 // C11 _Generic approach would require that at least, I think, may need it
 // here as well, actually I have a vague recollection of having checked
+
+// FIXME: get hid of the -Wshadow push garbage I think
 
 // Try to Print Thing (which must be of one of the known types).  This is
 // somewhat adventurous code.  Note that if two types on this list are
@@ -132,7 +134,7 @@
   do {                                                                      \
     _Pragma ("GCC diagnostic push");                                        \
     _Pragma ("GCC diagnostic error \"-Wshadow\"");                          \
-    bool XxX_already_matched_ = false;                                      \
+    bool XxX_format_free_print_already_matched_ = false;                    \
     typeof (thing) XxX_et_ = thing;   /* thing evaluted only here */        \
     _Pragma ("GCC diagnostic pop");                                         \
     WIMCUPSMC ( char                  , "%c"              );                \
@@ -158,14 +160,15 @@
     WIMCUPSMC ( long long int         , "%lli"            );                \
     WIMCUPSMC ( long long unsigned int, "%llu"            );                \
     WIMCUPSMC ( bool                  , "%i"              );                \
+    /* Note that C often promotes float to double, but this is tested: */   \
     WIMCUPSMC ( float                 , "%." FFPFSD "g"   );                \
     WIMCUPSMC ( double                , "%." FFPFSD "g"   );                \
     WIMCUPSMC ( long double           , "%." FFPFSD "Lg"  );                \
     WIMCUPSMC ( void *                , "%p"              );                \
     FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS;                             \
-    if ( ! XxX_already_matched_ ) {                                         \
-      printf ("\n");            /* Flush and existing stdout output */      \
-      fprintf (stderr, "\n");   /* Flush and existing stderr output */      \
+    if ( ! XxX_format_free_print_already_matched_ ) {                       \
+      printf ("\n");            /* Flush any existing stdout output */      \
+      fprintf (stderr, "\n");   /* Flush any existing stderr output */      \
       fprintf (                                                             \
           stderr,                                                           \
           "%s:%i:%s: "                                                      \
@@ -178,17 +181,17 @@
 
 // Try to Print Labeled thing.  Like PT(), but precedes the value with
 // "thing: ".
-#define PL(thing)                                             \
-   do {                                                       \
-     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "%s: ", #thing); \
-     PT (thing);                                              \
+#define PL(thing)                                        \
+   do {                                                  \
+     fprintf (FORMAT_FREE_PRINT_STREAM, "%s: ", #thing); \
+     PT (thing);                                         \
    } while ( 0 )
 
 // Try to Dump Thing.  Like PL(), but also outputs a newline after the value.
-#define DT(thing)                                   \
-   do {                                             \
-     PL (thing);                                    \
-     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "\n"); \
+#define DT(thing)                              \
+   do {                                        \
+     PL (thing);                               \
+     fprintf (FORMAT_FREE_PRINT_STREAM, "\n"); \
    } while ( 0 )
 
 // Try to Trace Thing.  Like DT(), but also add the source location as
@@ -197,10 +200,10 @@
 // to avoid an extra expansion and potential resulting confusion?  But then
 // they have to be manually synced if changed, which is sort of sad.  Or I
 // suppose there's always DEFER() or whatever but god
-#define TT(thing)                                                 \
-   do {                                                           \
-     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
-     DT (thing);                                                  \
+#define TT(thing)                                            \
+   do {                                                      \
+     fprintf (FORMAT_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
+     DT (thing);                                             \
    } while ( 0 );
 
 // Try to Trace thing then Die.
@@ -216,13 +219,13 @@
    do {                                                                   \
      _Pragma ("GCC diagnostic push");                                     \
      _Pragma ("GCC diagnostic error \"-Wshadow\"");                       \
-     bool XxX_already_matched_ = false;                                   \
+     bool XxX_format_free_print_already_matched_ = false;                 \
      typeof (thing) XxX_et_ = thing;   /* thing evaluted only here */     \
      _Pragma ("GCC diagnostic pop");                                      \
      WIMCUPSMC ( uint8_t         , "0x%02" PRIx8  );                      \
      WIMCUPSMC ( uint16_t        , "0x%04" PRIx16 );                      \
      WIMCUPSMC ( uint32_t        , "0x%08" PRIx32 );                      \
-     if ( ! XxX_already_matched_ ) {                                      \
+     if ( ! XxX_format_free_print_already_matched_ ) {                    \
        printf ("\n");            /* Flush and existing stdout output */   \
        fprintf (stderr, "\n");   /* Flush and existing stderr output */   \
        fprintf (                                                          \
@@ -237,26 +240,26 @@
 
 // Try to Print Labeled thing in Hex.  Like PL(), but only works for
 // unsigned integer types and outputs the value in hex.
-#define PLX(thing)                                            \
-   do {                                                       \
-     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "%s: ", #thing); \
-     PTX (thing);                                             \
+#define PLX(thing)                                       \
+   do {                                                  \
+     fprintf (FORMAT_FREE_PRINT_STREAM, "%s: ", #thing); \
+     PTX (thing);                                        \
    } while ( 0 )
 
 // Try to Dump thing in Hex.  Like DT(), but only works for unsigned integer
 // types and outputs the value in hex.
-#define DTX(thing)                                  \
-   do {                                             \
-     PLX (thing);                                   \
-     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "\n"); \
+#define DTX(thing)                             \
+   do {                                        \
+     PLX (thing);                              \
+     fprintf (FORMAT_FREE_PRINT_STREAM, "\n"); \
    } while ( 0 )
 
 // Try to Trace Thing in Hex.  Like TT(), but only works for unsigned
 // integer types and outputs the value in hex.
-#define TTX(thing)                                                \
-   do {                                                           \
-     fprintf (FORMAT_FREE_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
-     DTX (thing);                                                 \
+#define TTX(thing)                                           \
+   do {                                                      \
+     fprintf (FORMAT_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
+     DTX (thing);                                            \
    } while ( 0 );
 
 // Try to Trace thing (in Hex) then Die.  Like TD(), but only works for
