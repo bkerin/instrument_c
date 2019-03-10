@@ -81,11 +81,11 @@ will hopefully show a backtrace.  Note however that stack unwinding involves
 heuristics and callers can do things that defeat it.  Also, backtracing through
 shared or dynamically loaded libraries isn't fully implemented.
 
-The `-ldl` link option is only required for what_func_func().  If you don't
+The `-ldl` link option is only required for `what_func_func()`.  If you don't
 care about getting the names of functions from function pointers you might
-rather just remove what_func_func().
+rather just remove `what_func_func()`.
 
 If you are interested in looking up function names and you're using shared
 libraries, you'll need to build *both* the library *and* the application with
-`-fPIC`.  The `what_func() function can then be used to print the name of the
+`-fPIC`.  The `what_func()` macro can then be used to print the name of the
 function pointed to by it's argument.
