@@ -164,12 +164,12 @@ main (void)
   // Note that the stringified label used for literal floating point values
   // isn't subject to printf() rounding, but the value itself is.
   PT ("Other available variants (mostly tested indirectly by the above):\n");
-  PT ("  PT (thing) -- without source locations or implicit newlines\n");
-  PT ("  PL (thing) -- Like PT(), but adds a Label (e.g. var_name: 42)\n");
-  PT ("  DT (thing) -- Dump Thing.  Like PL(), but also appends a newline\n");
-  PT ("  TT (thing) -- Trace Thing.  Like DT() including file:line:func:\n");
-  PT ("  TD (thing) -- Like TT(), but exit (EXIT_FAILURE) afterwords\n");
-  PT ("  *X (thing) -- Analogous variants to the above, but only work for\n");
+  PT ("  PT  (thing) -- without source locations or implicit newlines\n");
+  PT ("  PL  (thing) -- Like PT(), but adds a Label (e.g. var_name: 42)\n");
+  PT ("  DT  (thing) -- Dump Thing.  Like PL(), but also appends a newline\n");
+  PT ("  TT  (thing) -- Trace Thing.  Like DT() including file:line:func:\n");
+  PT ("  TD  (thing) -- Like TT(), but exit (EXIT_FAILURE) afterwords\n");
+  PT ("  ??X (thing) -- Analogous variants to the above, but only work for\n");
   PT ("                uint8_t/uint16_t/uint32_t types and output in hex\n");
 
   printf ("\n");
