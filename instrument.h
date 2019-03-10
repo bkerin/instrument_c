@@ -369,6 +369,7 @@ backtrace_with_line_numbers (void)
 // used on that.  If things appear to have been compiled or stripped such
 // that this function cannot succeed an assertion violation is triggered.
 // On error an assertion violation is triggered.
+__attribute__ ((__unused__))
 static void
 what_func_func (void *func_addr)
 {
