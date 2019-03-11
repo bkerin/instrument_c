@@ -1,17 +1,7 @@
 // Extensions to PT() from format_free_print.h
 //
 // Currently this header just contains a demo that shows how to tell PT()
-// how to render new types.
-//
-// There's no reason in principle that printf() must be used: a new version
-// of the WIMCUPSMC() macro from format_free_print.h could be defined that
-// does something other than printf(), thereby turning PT() into a generic
-// "show-me-this-thing" interface.  In fact, if there is no need to ever use
-// printf() on a type except for instrumentation purposes, it's probably
-// easier to just make a WIMCUPSMC() variant that prints it by calling
-// some other function, thereby avoiding the printf() extension interface
-// (i.e. no need for GNU libc register_printf_specifier()).  This is left
-// as an exercise for the reader.
+// how to print new types.
 
 #ifndef INSIDE_FORMAT_FREE_PRINT_H
 #  error included from somewhere other than format_free_print.h
