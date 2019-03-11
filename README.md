@@ -8,7 +8,7 @@ pointer value.
 
 ## Print values without needing a format string
 
-Put the `format_free_print.h` in with your other sources and include it, e.g.:
+Put the `format_free_print.h` in with your other sources and include it:
 
 ```C
 #include "format_free_print.h"
@@ -86,6 +86,6 @@ care about getting the names of functions from function pointers you might
 rather just remove `what_func_func()`.
 
 If you are interested in looking up function names and you're using shared
-libraries, you'll need to build *both* the library *and* the application with
+libraries, you'll need to compile both the library *and* the application with
 `-fPIC`.  The `what_func()` macro can then be used to print the name of the
 function pointed to by it's argument.
