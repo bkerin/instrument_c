@@ -119,10 +119,10 @@
 // somewhat adventurous code.  Note that if two types on this list are
 // synonyms a run-time error is triggered if an attempt is made to print
 // a thing of either type.  This means it isn't possible to treat aliased
-// types differently via printf format codes.  The format code for each type
-// printed by this interface is explicitly set here and cannot be changed
-// (in fact not having to specify it every time is the point), so a separate
-// version of this macro would be required to e.g. render ints in hex.
+// types differently via printf format codes.  The format code for each
+// type printed by this interface is explicitly set here and cannot be
+// changed (in fact not having to specify it every time is the point), so
+// a separate version of this macro is required to e.g. render ints in hex.
 // It might be better to use __auto_type rather than typeof() here, but it
 // doesn't work from C++ and would only help in the very minority case of a
 // variably modified type that can't tolerate being evaluated more than once.
