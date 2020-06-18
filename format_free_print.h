@@ -28,13 +28,13 @@
 // Some might preferr to #define this such that output goes to stderr
 #ifndef FORMAT_FREE_PRINT_STREAM
 #  define FORMAT_FREE_PRINT_STREAM stdout
-#endif // FORMAT_FREE_PRINT_STREAM
+#endif
 
 // Default to use 6 significant digits (the default for %g format output
 // in printf()).
 #ifndef FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
 #  define FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS "6"
-#endif // FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS 
+#endif
 
 // To use the optional format_free_print_pt_extensions.h a -D must be used
 #ifdef HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
@@ -49,6 +49,8 @@
 #endif
 
 // File-Line-Function Tuple
+// FIXME: FLFT is maybe a bit short to be assumed non-clash maybe rename
+// to FORMAT_FREE_PRINT_FLFT?
 #define FLFT __FILE__, __LINE__, __func__
 
 // Choose Expression Depending On Thing Type Match.  See the use context.
@@ -60,28 +62,27 @@
       (exp_if_thing_of_type),                                                \
       (exp_if_thing_not_of_type) )
 
-// Not for independent use (see the existing call context).  Stands for
-// Weird If Matched Check Unmatched Print Set Matched Chunk :) The outer
-// CEDOTTM() evaluates to an only-one-match-allowed printf() if XxX_ffp_et_
-// (Evaluated Thing) is of type, or a void expression otherwise.  The inner
-// CEDOTTM() calls are needed because currently GCC still syntax-checks
-// the non-selected expression arguments of __builtin_choose_expr(), so we
-// have to make sure a valid format-XxX_ffp_et_ pair get fed to printf()
-// regardless of the type-ness of XxX_ffp_et_ even at the point where we
-// already know (because of the surrounding CEDOTTM() call) that XxX_ffp_et_
-// is of type (the pair being format-XxX_ffp_et_ for the case that actually
-// happens, or "%s"-"i_am_never_seen" for the other).  Why do all this?
-// Because it gets us a warning if one of the entries in the list in PT()
-// has a type-format mismatch that GCC would normally warn about.  There are
-// some simpler solutions that don't have this property but it seems worth
-// it since bugs in debugging code are especially annoying.
-#define WIMCUPSMC(type, format)                                          \
+// Not for independent use (see the existing call context).  Stands for Weird
+// If Matched Check Unmatched Print Set Matched Chunk :) The outer CEDOTTM()
+// evaluates to an only-one-match-allowed printf() if thing is of type, or a
+// void expression otherwise.  The inner CEDOTTM() calls are needed because
+// currently GCC still syntax-checks the non-selected expression arguments
+// of __builtin_choose_expr(), so we have to make sure a valid format-thing
+// pair get fed to printf() regardless of the type-ness of thing even at
+// the point where we already know (because of the surrounding CEDOTTM()
+// call) that thing is of type (the pair being format-thing for the case
+// that actually happens, or "%s"-"i_am_never_seen" for the other).  Why do
+// all this?  Because it gets us a warning if one of the entries in the list
+// in PT() has a type-format mismatch that GCC would normally warn about.
+// There are some simpler solutions that don't have this property but it
+// seems worth it since bugs in debugging code are especially annoying.
+#define WIMCUPSMC(thing, type, format)                                   \
   CEDOTTM (                                                              \
-      XxX_ffp_et_,                                                       \
+      thing,                                                             \
       type,                                                              \
       (                                                                  \
         (                                                                \
-          XxX_ffp_already_matched_ ?                                     \
+          XxX_already_matched_ ?                                         \
           (                                                              \
             fprintf (stderr, "\n"),                                      \
             fprintf (                                                    \
@@ -98,9 +99,9 @@
         ),                                                               \
         fprintf (                                                        \
           FORMAT_FREE_PRINT_STREAM,                                      \
-          CEDOTTM (XxX_ffp_et_, type, (format), "%s"),                   \
-          CEDOTTM (XxX_ffp_et_, type, XxX_ffp_et_, "i_am_never_seen") ), \
-        XxX_ffp_already_matched_ = true                                  \
+          CEDOTTM (thing, type, (format), "%s"),                         \
+          CEDOTTM (thing, type, (thing), "i_am_never_seen") ),           \
+        XxX_already_matched_ = true                                      \
       ),                                                                 \
       ((void) 0) )
 
@@ -123,44 +124,35 @@
 // type printed by this interface is explicitly set here and cannot be
 // changed (in fact not having to specify it every time is the point), so
 // a separate version of this macro is required to e.g. render ints in hex.
-// It might be better to use __auto_type rather than typeof() here, but it
-// doesn't work from C++ and would only help in the very minority case of a
-// variably modified type that can't tolerate being evaluated more than once.
 #define PT(thing)                                                           \
   do {                                                                      \
-    bool XxX_ffp_already_matched_ = false;                                  \
-    typeof (thing) XxX_ffp_et_ = thing;   /* thing evaluted only here */    \
-    WIMCUPSMC ( char                  , "%c"              );                \
-    WIMCUPSMC ( char *                , "%s"              );                \
-    WIMCUPSMC ( char const *          , "%s"              );                \
-    WIMCUPSMC ( char []               , "%s"              );                \
-    /* It seems that wchar_t is not distinct from int32_t:  */              \
-    /*WIMCUPSMC ( wchar_t               , "%lc"           );*/              \
-    WIMCUPSMC ( wchar_t *             , "%ls"             );                \
-    WIMCUPSMC ( wchar_t const *       , "%ls"             );                \
-    WIMCUPSMC ( wchar_t []            , "%ls"             );                \
-    WIMCUPSMC ( int8_t                , "%" PRIi8         );                \
-    WIMCUPSMC ( int16_t               , "%" PRIi16        );                \
-    WIMCUPSMC ( int32_t               , "%" PRIi32        );                \
-    WIMCUPSMC ( int64_t               , "%" PRIi64        );                \
-    WIMCUPSMC ( uint8_t               , "%" PRIu8         );                \
-    WIMCUPSMC ( uint16_t              , "%" PRIu16        );                \
-    WIMCUPSMC ( uint32_t              , "%" PRIu32        );                \
-    WIMCUPSMC ( uint64_t              , "%" PRIu64        );                \
+    bool XxX_already_matched_ = false;                                      \
+    WIMCUPSMC ( thing , char                   , "%c"             );        \
+    WIMCUPSMC ( thing , char *                 , "%s"             );        \
+    WIMCUPSMC ( thing , char const *           , "%s"             );        \
+    WIMCUPSMC ( thing , char []                , "%s"             );        \
+    WIMCUPSMC ( thing , int8_t                 , "%" PRIi8        );        \
+    WIMCUPSMC ( thing , int16_t                , "%" PRIi16       );        \
+    WIMCUPSMC ( thing , int32_t                , "%" PRIi32       );        \
+    WIMCUPSMC ( thing , int64_t                , "%" PRIi64       );        \
+    WIMCUPSMC ( thing , uint8_t                , "%" PRIu8        );        \
+    WIMCUPSMC ( thing , uint16_t               , "%" PRIu16       );        \
+    WIMCUPSMC ( thing , uint32_t               , "%" PRIu32       );        \
+    WIMCUPSMC ( thing , uint64_t               , "%" PRIu64       );        \
     /* Unlike the shorter integer types, the long long integer types are */ \
     /* distinct from int64_t/uint64_t, even though they are the same */     \
     /* length on my platform at least.  */                                  \
-    WIMCUPSMC ( long long int         , "%lli"            );                \
-    WIMCUPSMC ( long long unsigned int, "%llu"            );                \
-    WIMCUPSMC ( bool                  , "%i"              );                \
+    WIMCUPSMC ( thing , long long int          , "%lli"           );        \
+    WIMCUPSMC ( thing , long long unsigned int , "%llu"           );        \
+    WIMCUPSMC ( thing , bool                   , "%i"             );        \
     /* Note that C often promotes float to double, but this *is* tested: */ \
-    WIMCUPSMC ( float                 , "%." FFPFSD "g"   );                \
-    WIMCUPSMC ( double                , "%." FFPFSD "g"   );                \
-    WIMCUPSMC ( long double           , "%." FFPFSD "Lg"  );                \
-    WIMCUPSMC ( void *                , "%p"              );                \
-    WIMCUPSMC ( void const *          , "%p"              );                \
-    FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS;                             \
-    if ( ! XxX_ffp_already_matched_ ) {                                     \
+    WIMCUPSMC ( thing , float                  , "%." FFPFSD "g"  );        \
+    WIMCUPSMC ( thing , double                 , "%." FFPFSD "g"  );        \
+    WIMCUPSMC ( thing , long double            , "%." FFPFSD "Lg" );        \
+    WIMCUPSMC ( thing , void *                 , "%p"             );        \
+    WIMCUPSMC ( thing , void const *           , "%p"             );        \
+    FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS(thing);                      \
+    if ( ! XxX_already_matched_ ) {                                         \
       printf ("\n");            /* Flush any existing stdout output */      \
       fprintf (stderr, "\n");   /* Flush any existing stderr output */      \
       fprintf (                                                             \
@@ -172,6 +164,8 @@
       abort ();                                                             \
     }                                                                       \
   } while ( 0 )
+
+// FIXME: don't forget to clone the changes here over to cduino version
 
 // Print Labeled thing, i.e. print stringified argument then do PT()
 #define PL(thing)                                        \
@@ -201,20 +195,19 @@
     exit (EXIT_FAILURE); \
   } while ( 0 )
 
-// Try to Print Thing in heX.  Like PT(), but only works for unsigned
+// Try to Print Thing in hex.  Like PT(), but only works for unsigned
 // integer types and outputs the value in hex with a "0x" prefix.
 #define PTX(thing)                                                        \
    do {                                                                   \
-     bool XxX_ffp_already_matched_ = false;                               \
-     typeof (thing) XxX_ffp_et_ = thing;   /* thing evaluted only here */ \
+     bool XxX_already_matched_ = false;                                   \
      /* Note that these handle e.g. unsigned short, unsigned int, etc: */ \
-     WIMCUPSMC ( uint8_t         , "0x%02" PRIx8  );                      \
-     WIMCUPSMC ( uint16_t        , "0x%04" PRIx16 );                      \
-     WIMCUPSMC ( uint32_t        , "0x%08" PRIx32 );                      \
-     WIMCUPSMC ( uint64_t        , "0x%016" PRIx64 );                     \
-     if ( ! XxX_ffp_already_matched_ ) {                                  \
-       printf ("\n");            /* Flush and existing stdout output */   \
-       fprintf (stderr, "\n");   /* Flush and existing stderr output */   \
+     WIMCUPSMC ( thing, uint8_t  , "0x%02"  PRIx8  );                     \
+     WIMCUPSMC ( thing, uint16_t , "0x%04"  PRIx16 );                     \
+     WIMCUPSMC ( thing, uint32_t , "0x%08"  PRIx32 );                     \
+     WIMCUPSMC ( thing, uint64_t , "0x%016" PRIx64 );                     \
+     if ( ! XxX_already_matched_ ) {                                      \
+       printf ("\n");            /* Flush any existing stdout output */   \
+       fprintf (stderr, "\n");   /* Flush any existing stderr output */   \
        fprintf (                                                          \
            stderr,                                                        \
            "%s:%i:%s: "                                                   \

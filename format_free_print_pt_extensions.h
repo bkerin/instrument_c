@@ -36,9 +36,9 @@
 
 // This define is where the additional code to be injected into the PT()
 // macro goes.
-#define FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS                        \
+#define FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS(thing)                 \
   /* Here is where your type extensions go.  For example: */              \
-  DO_IGNORING_PRINTF_WARNINGS (WIMCUPSMC (Widget *, "%W");)               \
+  DO_IGNORING_PRINTF_WARNINGS (WIMCUPSMC (thing, Widget *, "%W");)        \
   ;   /* Add final semicolon even though caller does too, for safety.  */
 
 // In real life this stuff would probably be declared and defined elsewhere,
