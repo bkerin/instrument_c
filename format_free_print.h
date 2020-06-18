@@ -111,10 +111,9 @@
 // FIXMELATER: Seems like we would want const versions of everything in
 // the below list.  C11 _Generic approach sounds like it would require
 // it at least.  However for the current approach it isn't necessary and
-// doesn't work for most types because the const types are apparently
-// viewed as synonymous (the exceptions being pointer types char const *
-// and wchar_t const * which need the const version to exist).  Seems like
-// silly compiler buggers but whatever.
+// doesn't work for most types because the const types are apparently viewed
+// as compatible (the exception being char const * which seems to need the
+// const version to exist).  Seems like silly compiler buggers but whatever.
 
 // Try to Print Thing (which must be of one of the known types).  This is
 // somewhat adventurous code.  Note that if two types on this list are
