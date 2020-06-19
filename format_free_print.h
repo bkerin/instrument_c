@@ -49,9 +49,7 @@
 #endif
 
 // File-Line-Function Tuple
-// FIXME: FLFT is maybe a bit short to be assumed non-clash maybe rename
-// to FORMAT_FREE_PRINT_FLFT?
-#define FLFT __FILE__, __LINE__, __func__
+#define FORMAT_FREE_PRINT_FLFT __FILE__, __LINE__, __func__
 
 // Choose Expression Depending On Thing Type Match.  See the use context.
 #define CEDOTTM(thing, type, exp_if_thing_of_type, exp_if_thing_not_of_type) \
@@ -91,7 +89,7 @@
                 "bug in PT() macro: a synonym for type '" #type "' was " \
                 "already supplied earlier in the list (second synonyn "  \
                 "handler will never fire)\n",                            \
-                FLFT ),                                                  \
+                FORMAT_FREE_PRINT_FLFT ),                                \
             abort ()                                                     \
           )                                                              \
           :                                                              \
@@ -159,7 +157,7 @@
           "%s:%i:%s: "                                                      \
           "error: PT() macro doesn't know how to print things of type "     \
           "typeof (" #thing ")\n",                                          \
-          FLFT );                                                           \
+          FORMAT_FREE_PRINT_FLFT );                                         \
       abort ();                                                             \
     }                                                                       \
   } while ( 0 )
@@ -181,10 +179,13 @@
    } while ( 0 )
 
 // Trace Thing, i.e. print source location then do DT()
-#define TT(thing)                                            \
-   do {                                                      \
-     fprintf (FORMAT_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
-     DT (thing);                                             \
+#define TT(thing)                  \
+   do {                            \
+     fprintf (                     \
+         FORMAT_FREE_PRINT_STREAM, \
+         "%s:%i:%s: ",             \
+         FORMAT_FREE_PRINT_FLFT ); \
+     DT (thing);                   \
    } while ( 0 );
 
 // Do TT() then Die
@@ -212,7 +213,7 @@
            "%s:%i:%s: "                                                   \
            "error: PTX() macro doesn't know how to print things of type " \
            "typeof (" #thing ")\n",                                       \
-           FLFT );                                                        \
+           FORMAT_FREE_PRINT_FLFT );                                      \
        abort ();                                                          \
      }                                                                    \
    } while ( 0 )
@@ -232,10 +233,13 @@
    } while ( 0 )
 
 // Trace Thing in heX, i.e. print source location then do DTX()
-#define TTX(thing)                                           \
-   do {                                                      \
-     fprintf (FORMAT_FREE_PRINT_STREAM, "%s:%i:%s: ", FLFT); \
-     DTX (thing);                                            \
+#define TTX(thing)                  \
+   do {                             \
+     fprintf (                      \
+         FORMAT_FREE_PRINT_STREAM,  \
+         "%s:%i:%s: ",              \
+         FORMAT_FREE_PRINT_FLFT);   \
+     DTX (thing);                   \
    } while ( 0 );
 
 // Do TTX() then Die
