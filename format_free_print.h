@@ -74,6 +74,21 @@
 // in PT() has a type-format mismatch that GCC would normally warn about.
 // There are some simpler solutions that don't have this property but it
 // seems worth it since bugs in debugging code are especially annoying.
+//
+// IMPROVEME: this could probably be generalized to take a "printer" parameter
+// so users could pass down their own printer handlers to be used in PT() and
+// PTX().  This would likely require deferred expansion using this technique:
+//
+//   #define EMPTY()
+//   #define DEFER(x) x EMPTY()
+//
+//   N_ ()           // Expands to 0
+//   DEFER (N_) ()   // Expands N_ ()
+//
+// This me be an easier way to allow PT() to be truly generic and capable
+// of rendering arbitrary non-aliasing types, compared to the approach in
+// format_free_print_pt_extensions.h.
+//
 #define WIMCUPSMC(thing, type, format)                                   \
   CEDOTTM (                                                              \
       thing,                                                             \
@@ -121,6 +136,8 @@
 // type printed by this interface is explicitly set here and cannot be
 // changed (in fact not having to specify it every time is the point), so
 // a separate version of this macro is required to e.g. render ints in hex.
+// FIXME: make use of XxX_already_matched_ more hygenic by pushing a shadow
+// warning like we do in cduino version of this stuff?
 #define PT(thing)                                                           \
   do {                                                                      \
     bool XxX_already_matched_ = false;                                      \
