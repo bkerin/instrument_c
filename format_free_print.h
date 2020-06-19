@@ -91,7 +91,7 @@
 //
 #define WIMCUPSMC(thing, type, format)                                   \
   CEDOTTM (                                                              \
-      thing,                                                             \
+      (thing),                                                           \
       type,                                                              \
       (                                                                  \
         (                                                                \
