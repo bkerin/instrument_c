@@ -112,8 +112,8 @@
         ),                                                               \
         fprintf (                                                        \
           FORMAT_FREE_PRINT_STREAM,                                      \
-          CEDOTTM (thing, type, (format), "%s"),                         \
-          CEDOTTM (thing, type, (thing), "i_am_never_seen") ),           \
+          CEDOTTM ((thing), type, (format), "%s"),                       \
+          CEDOTTM ((thing), type, (thing), "i_am_never_seen") ),         \
         XxX_already_matched_ = true                                      \
       ),                                                                 \
       ((void) 0) )
