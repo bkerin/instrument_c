@@ -141,13 +141,13 @@ main (void)
 
   PT ("Unsigned integer types which aren't size-specific but are "
       "type-compatible with the explicitly supported sized types will "
-      "work:\n");
+      "work with the macros that print values in hex:\n");
   TTX (test_unsigned_short_int);
   TTX (test_unsigned_int);
   TTX (test_unsigned_long_int);
   PT ("NOTE however that the unsigned long long int type is apparently NOT "
       "type-compatible with uint64_t, since TTX (test_unsigned_long_long_int) "
-      "doesn't work.");
+      "doesn't work.\n");
   PT ("\n");
 
   TT (test_float);
