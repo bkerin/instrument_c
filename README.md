@@ -56,7 +56,7 @@ There's an extension interface for adding support for additional types; see
 The output stream to use can be set by defining `FORMAT_FREE_PRINT_STREAM`
 (e.g.  to `stderr`).
 
-The number of floating point significant figurs can bet set by defining
+The number of floating point significant figures can bet set by defining
 `FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS` to a string value like `"6"`.
 
 ## Show a backtrace or get the name of a function from a function pointer
