@@ -102,7 +102,7 @@ main (void)
   TT (test_unsigned_long_long_int);
   PT ("\n");
   
-  PT ("NOTE: arguments are guaranteed to be evaluated only once:\n"); 
+  PT ("Arguments are guaranteed to be evaluated only once:\n"); 
   TT (test_int);
   TT (++test_int);
   TT (test_int--);
@@ -132,21 +132,31 @@ main (void)
   TT (true);
   PT ("\n");
   
-  // FIXME: what was this next comment supposed to say?  should it be a PT()?
-  // Note that unsigned integer types which aren't size-specifice.g.
+  TTX (test_unsigned_int);
   TTX (test_hex_uint8);
   TTX (test_hex_uint16);
   TTX (test_hex_uint32);
   TTX (test_hex_uint64);
   PT ("\n");
 
+  PT ("Unsigned integer types which aren't size-specific but are "
+      "type-compatible with the explicitly supported sized types will "
+      "work:\n");
+  TTX (test_unsigned_short_int);
+  TTX (test_unsigned_int);
+  TTX (test_unsigned_long_int);
+  PT ("NOTE however that the unsigned long long int type is apparently NOT "
+      "type-compatible with uint64_t, since TTX (test_unsigned_long_long_int) "
+      "doesn't work.");
+  PT ("\n");
+
   TT (test_float);
   TT (test_double);
   TT (test_long_double);
-  PT ("NOTE: the stringified labels of floating point literals aren't\n");
-  PT ("subject to printf() rounding, but the values themselves are:\n");
+  PT ("The stringified labels of floating point literals aren't subject "
+      "to printf() rounding, but the values themselves are:\n");
   TT (42.424211111F);
-  // Weirdly expressed so we can pass with -Wunsuffixed-float-constants: 
+  PT ("Weirdly expressed so we can pass with -Wunsuffixed-float-constants:\n");
   TT ((double) 42.424211111L);
   TT (42.424211111L);
   PT ("\n");
@@ -160,7 +170,7 @@ main (void)
   TT (test_const_pointer_to_const);
   PT ("\n");
   
-  PT ("NOTE: arguments are guaranteed to be evaluated only once:\n"); 
+  PT ("Arguments are guaranteed to be evaluated only once:\n"); 
   TT (i_return_minus_42_as_an_int ());
   TT (test_int);
   TT (++test_int);
@@ -174,7 +184,7 @@ main (void)
 
   // See the Makefile in the instrument project top-level dir for info on this:
 #ifdef HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
-  PT ("Trying format-free trace of an extended type...\n");
+  PT ("Format-free trace of an extended type:\n");
   test_widget.name = strdup ("test_widget");
   // Normally this next call would probably go somewhere else.
   register_printf_specifier ('W', print_widget, print_widget_arginfo);
@@ -193,14 +203,13 @@ main (void)
   PT ("  TT  (thing) -- Trace Thing.  Like DT() including file:line:func:\n");
   PT ("  TD  (thing) -- Like TT(), but exit (EXIT_FAILURE) afterwords\n");
   PT ("  ??X (thing) -- Analogous variants to the above, but only work for\n");
-  PT ("                uint8_t/uint16_t/uint32_t types and output in hex\n");
+  PT ("                 uint8_t/uint16_t/uint32_t/uint64_t and output hex\n");
 
   printf ("\n");
 
-  // FIXME: maybe we should actually always fail?  Also note that for some
-  // kinds of errors we do fail
   printf (
-      "WARNING: this test program always succeeds.  The above output is\n"
-      "intended to be *manually* inspected for correctness.\n" );
+      "WARNING: this test program always exits with exit code 0 if it makes "
+      "it to this point.  The above output is intended to be manually "
+      "inspected for correctness.\n" );
   return 0;
 }

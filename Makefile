@@ -156,7 +156,7 @@ run_instrument_test: instrument_test
         (                                                                     \
           echo ;                                                              \
           echo WARNING: Recipe succeeding because ./$< is expected to fail. ; \
-          echo Its output is shoud be validated *manually*.                   \
+          echo Its output shoud be validated manually.                        \
         ) 1>&2
 
 # If you're interested in using cflow or global look at this:
