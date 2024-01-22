@@ -45,7 +45,7 @@
 #    error FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS not defined
 #  endif
 #else
-#  define FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS
+#  define FORMAT_FREE_PRINT_PT_ADDITIONAL_WIMCUPSMCS(thing) (void) 0
 #endif
 
 // File-Line-Function Tuple
