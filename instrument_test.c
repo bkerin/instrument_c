@@ -70,6 +70,10 @@ main (void)
   what_func (demo_shared_lib_func);
   printf ("\n");
 
+  printf("Trying BACKTRACE()...\n");
+  BACKTRACE ();
+  printf ("\n");
+
   printf ("Calling function i_fail_with_backtrace() (expecting failure)...\n");
   i_fail_with_backtrace ();
 

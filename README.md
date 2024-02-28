@@ -1,10 +1,9 @@
 # What it is
 
-This header-only library is intended to make it just a bit easier to debug C
-code using instrumentation in the code (rather than a debugger).  It provides
-stuff for easy printing of values and also a way to get a backtrace or
-determine (at run-time) the name of the function pointed to by a function
-pointer value.
+This header-only library is intended to make it easier to debug C code using
+instrumentation in the code (rather than a debugger).  It provides stuff for
+easy printing of values and also a way to get a backtrace or determine (at
+run-time) the name of the function pointed to by a function pointer.
 
 ## Print values without needing a format string
 
@@ -61,8 +60,10 @@ The number of floating point significant figures can bet set by defining
 
 ## Show a backtrace or get the name of a function from a function pointer
 
+WARNING: the `instrument.h` assumes the /proc filesystem is available.
+
 Put `instrument.h` in with your other sources and include it, compile with at
-least the `-g` and  option, and link with `-ldl`.  Then:
+least the `-g` and  option, and link with `-rdynamic` and `-ldl`.  Then:
 
 ```C
 #include "instrument.h"
@@ -83,9 +84,14 @@ shared or dynamically loaded libraries isn't fully implemented.
 
 The `-ldl` link option is only required for `what_func_func()`.  If you don't
 care about getting the names of functions from function pointers you might
-rather just remove `what_func_func()`.
+rather just remove `what_func_func()`.  The `-rdynamic` option also might be
+unnecessary, so it may be possible to use `instrument.h` without any build
+changes except `-g` during compilation.
 
 If you are interested in looking up function names and you're using shared
 libraries, you'll need to compile both the library *and* the application with
 `-fPIC`.  The `what_func()` macro can then be used to print the name of the
 function pointed to by it's argument.
+
+Full backtraces across call stacks including functions from dynamically loaded
+libraries are not yet supported (see FIXME items in code).

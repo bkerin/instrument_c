@@ -23,20 +23,14 @@ OBJS = $(patsubst %.c,%.o,$(SOURCES))
 # you'll want to arrange for your final production build to ommit it.
 #INCR_LDFLAGS = -fuse-ld=gold -Wl,--incremental
 
-# Need gcc-8 (or later) to test latest -W options
-# FIXME: replace this with a generic gcc and a version check somewhere so it
-# can work for random people
-CC = $(CCACHE) $(HOME)/opt/gcc-10.1.0/bin/gcc  
+# FIXME: should check for at least gcc-8 or larter (and this used to be
+# explicitly set to gcc-10.1.0 so maybe it needs later things as well,
+# though hopefully all are common enough now anyway can work for random people
+CC = $(CCACHE) gcc
 
 # We use some GNU libc extension functions.  This also serves as a example
 # of how to pass the same cpp flags to cflow as well as the compiler.
 CPPFLAGS = -D_GNU_SOURCE
-
-# FIXME: Probably make all the quickie things like PT lowercase, because
-# that's easlier to type and using upcase for macro names is pointless
-# and passee.  But then again it's sort of nice to be able search out all
-# these macros without matching extra variable names as much, so maybe lose
-# this fixme.  ASSERT_BT also in theory.
 
 # Source libs must build cleanly with strictest possible warning settings.
 # Generally format_free_print.h and instrument.h do the excruciatingly
@@ -137,7 +131,7 @@ $(OBJS): %.o: %.c $(HEADERS) Makefile
 format_free_print_test: format_free_print_test.o
 	$(CC) $(INCR_LDFLAGS) $+ -o $@
 
-.PHONY: format_free_print_test_run
+.PHONY: run_format_free_print_test
 run_format_free_print_test: format_free_print_test
 	./$<
 
@@ -164,7 +158,6 @@ run_instrument_test: instrument_test
 
 # If you're interested in building and installing libinstrument.a look at this:
 -include instrument_lib.mk
-
 
 .PHONY: clean
 clean:

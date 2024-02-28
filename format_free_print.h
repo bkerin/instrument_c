@@ -136,7 +136,7 @@
 // type printed by this interface is explicitly set here and cannot be
 // changed (in fact not having to specify it every time is the point), so
 // a separate version of this macro is required to e.g. render ints in hex.
-// FIXME: make use of XxX_already_matched_ more hygenic by pushing a shadow
+// FIXXME: make use of XxX_already_matched_ more hygenic by pushing a shadow
 // warning like we do in cduino version of this stuff?
 #define PT(thing)                                                           \
   do {                                                                      \
@@ -178,8 +178,6 @@
       abort ();                                                             \
     }                                                                       \
   } while ( 0 )
-
-// FIXME: don't forget to clone the changes here over to cduino version
 
 // Print Labeled thing, i.e. print stringified argument then do PT()
 #define PL(thing)                                        \
