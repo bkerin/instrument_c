@@ -10,7 +10,7 @@
 static int
 i_return_minus_42_as_an_int (void)
 {
-  // Uncomment to verify that macro argument evaluated only once: 
+  // Uncomment to verify that macro argument evaluated only once:
   printf ("(this side effect output should appear only once) ");
 
   return -42;
@@ -61,10 +61,10 @@ main (void)
   int         const test_const_int         = -42;
   long double const test_const_long_double = 42.42L;
 
-  void              *test_pointer                = NULL; 
-  void const        *test_pointer_to_const       = NULL; 
-  // Constant pointers to const appear to match void const * type: 
-  void const *const  test_const_pointer_to_const = NULL; 
+  void              *test_pointer                = NULL;
+  void const        *test_pointer_to_const       = NULL;
+  // Constant pointers to const appear to match void const * type:
+  void const *const  test_const_pointer_to_const = NULL;
 
 #ifdef HAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
   Widget test_widget;
@@ -75,7 +75,7 @@ main (void)
 
   TT (test_char);
   printf ("\n");
-  
+
   printf ("NOTE: the wchar_t type is not supported because I hate it\n");
   printf ("\n");
 
@@ -101,8 +101,8 @@ main (void)
   TT (test_unsigned_long_int);
   TT (test_unsigned_long_long_int);
   PT ("\n");
-  
-  PT ("Arguments are guaranteed to be evaluated only once:\n"); 
+
+  PT ("Arguments are guaranteed to be evaluated only once:\n");
   TT (test_int);
   TT (++test_int);
   TT (test_int--);
@@ -131,7 +131,7 @@ main (void)
   TT (false);
   TT (true);
   PT ("\n");
-  
+
   TTX (test_unsigned_int);
   TTX (test_hex_uint8);
   TTX (test_hex_uint16);
@@ -169,15 +169,15 @@ main (void)
   TT (test_pointer_to_const);
   TT (test_const_pointer_to_const);
   PT ("\n");
-  
-  PT ("Arguments are guaranteed to be evaluated only once:\n"); 
+
+  PT ("Arguments are guaranteed to be evaluated only once:\n");
   TT (i_return_minus_42_as_an_int ());
   TT (test_int);
   TT (++test_int);
   TT (test_int--);
   TT (test_int);
   PT ("\n");
-  
+
   PT ("Expressions involving function calls work:\n");
   TT (2 * i_return_minus_42_as_an_int ());
   PT ("\n");
@@ -206,6 +206,10 @@ main (void)
   PT ("                 uint8_t/uint16_t/uint32_t/uint64_t and output hex\n");
 
   printf ("\n");
+
+  // FIXME: doc th eother things that are available TV TVD TS TSD CP DP
+  // NCP NDP and sync this list to what's in the README.md, or else remove
+  // this stuff?
 
   printf (
       "WARNING: this test program always exits with exit code 0 if it makes "

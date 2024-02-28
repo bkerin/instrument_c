@@ -1,10 +1,9 @@
 
 include sanity.mk
 
-
-# Recipies for packing up and distributing the instrument source library.
-# It's super simple so the package benefits from having only the sources,
-# not the related article or maintainer stuff.
+# Recipies for developing, packing up, and distributing the instrument
+# source library.  It's super simple so the package benefits from having
+# only the sources, not the related article or maintainer stuff.
 
 # Allow use of bashisms.
 SHELL = /bin/bash
@@ -29,6 +28,20 @@ HTML_FILES =                                                                  \
       %.adoc,                                                                 \
       %.html,                                                                 \
       $(filter-out $(AUTOGENED_ADOCS),$(wildcard *.adoc)) $(AUTOGENED_ADOCS))
+
+# The only annoying thing with this is it pulls the browser window onto the
+# current desktop.  But it can just be moved back, then updates itself when
+# more changes are done.  FIXXME: grip --export would just produce HTML and
+# let us do the viewing our own way...
+.PHONY: view_readme_locally
+view_readme_locally:
+	(                                                                   \
+          (grip -b &>>/tmp/grip_log)                                        \
+          ||                                                                \
+          (echo grip failed, maybe a running copy needs to be killed? 1>&2) \
+        )                                                                   \
+        &
+
 
 define AUTOGENED_ADOC_TEMPLATE
 // WARNING -- AUTOMATICALLY GENERATED FROM $< -- DO NOT EDIT

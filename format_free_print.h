@@ -25,7 +25,8 @@
 #include <stdlib.h>
 #include <wchar.h>
 
-// Some might preferr to #define this such that output goes to stderr
+// Some might preferr to #define this such that output goes to stderr or
+// some other open FILE pointer.
 #ifndef FORMAT_FREE_PRINT_STREAM
 #  define FORMAT_FREE_PRINT_STREAM stdout
 #endif
@@ -34,6 +35,11 @@
 // in printf()).
 #ifndef FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
 #  define FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS "6"
+#endif
+
+// Some users might like to redefine death itself :)
+#ifndef FORMAT_FREE_PRINT_DIE
+#  define FORMAT_FREE_PRINT_DIE() exit (EXIT_FAILURE)
 #endif
 
 // To use the optional format_free_print_pt_extensions.h a -D must be used
@@ -50,6 +56,9 @@
 
 // File-Line-Function Tuple
 #define FORMAT_FREE_PRINT_FLFT __FILE__, __LINE__, __func__
+
+// All the format-free stuff is GCC-specific
+#ifdef __GNUC__
 
 // Choose Expression Depending On Thing Type Match.  See the use context.
 #define CEDOTTM(thing, type, exp_if_thing_of_type, exp_if_thing_not_of_type) \
@@ -204,10 +213,12 @@
    } while ( 0 );
 
 // Do TT() then Die
-#define TD(thing)        \
-  do {                   \
-    TT (thing);          \
-    exit (EXIT_FAILURE); \
+#define TD(thing)               \
+  do {                          \
+    TT (thing);                 \
+    do {                        \
+      FORMAT_FREE_PRINT_DIE (); \
+    } while ( 0 );              \
   } while ( 0 )
 
 // Try to Print Thing in hex.  Like PT(), but only works for unsigned
@@ -258,10 +269,85 @@
    } while ( 0 );
 
 // Do TTX() then Die
-#define TDX(thing)       \
-  do {                   \
-    TTX (thing);         \
-    exit (EXIT_FAILURE); \
+#define TDX(thing)              \
+  do {                          \
+    TTX (thing);                \
+    do {                        \
+      FORMAT_FREE_PRINT_DIE (); \
+    } while ( 0 );              \
   } while ( 0 )
+
+#endif // __GNUC__
+
+// FIXME: WORK POINT: make sure the tests for these next four are in the
+// right place (the die ones might not have tests I'm not sure):
+
+// Trace Value: given an expression expr and an unquoted format code, print
+// the source location and expression text and value followed by a newline,
+// e.g. TV (my_int, %i), TV (my_sub_returning_int (), %i).
+#define TV(expr, format_code)                    \
+  printf (                                       \
+      "%s:%i:%s: " #expr ": " #format_code "\n", \
+      FORMAT_FREE_PRINT_FLFT,                    \
+      expr )
+
+// Like TV(), but die after.
+#define TVD(expr, format_code) \
+  do {                         \
+    TV (expr, format_code);    \
+    FORMAT_FREE_PRINT_DIE ();  \
+  } while ( 0 )
+
+// Trace Stuff: print expanded format string in first argument, using values
+// given in remaining arguments, tagged with source location and added newline
+#ifdef __GNUC__   // This one needs GNU comma-swallowing __VA_ARGS__ extension
+#  define TS(fmt, ...)                                                      \
+     printf ("%s:%i:%s: " fmt "\n", FORMAT_FREE_PRINT_FLFT, ## __VA_ARGS__)
+#endif
+
+// Like TS() then die.
+#ifdef __GNUC__   // This one needs GNU comma-swallowing __VA_ARGS__ extension
+#  define TSD(fmt, ...)          \
+     do {                        \
+       TS (fmt, __VA_ARGS__);    \
+       FORMAT_FREE_PRINT_DIE (); \
+     } while ( 0 )
+#endif
+
+// CheckPoint (output e.g. "Hit my_file.c:42:my_func\n")
+#define CP()                       \
+   do {                            \
+     fprintf (                     \
+         FORMAT_FREE_PRINT_STREAM, \
+         "Hit %s:%i:%s\n",         \
+         FORMAT_FREE_PRINT_FLFT ); \
+   } while ( 0 )
+
+// Named CheckPoint (e.g. NCP(my cp) will output "my cp\n")
+#define NCP(name)                                   \
+  do {                                              \
+    fprintf (FORMAT_FREE_PRINT_STREAM, #name "\n"); \
+  } while ( 0 )
+
+// Die Point: output (e.g. "Dying at my_file.c:42:m_func\n" then die)
+#define DP()                       \
+   do {                            \
+     fprintf (                     \
+         FORMAT_FREE_PRINT_STREAM, \
+         "Dying at %s:%i:%s\n",    \
+         FORMAT_FREE_PRINT_FLFT ); \
+     do {                          \
+       FORMAT_FREE_PRINT_DIE ();   \
+     } while ( 0 );                \
+   } while ( 0 )
+
+// Named Die Point (e.g. NDP(my dp) will output "my dp\n" then die)
+#define NDP(name)                                    \
+   do {                                              \
+     fprintf (FORMAT_FREE_PRINT_STREAM, #name "\n"); \
+     do {                                            \
+       FORMAT_FREE_PRINT_DIE ();                     \
+     } while ( 0 );                                  \
+   } while ( 0 )
 
 #endif   // FORMAT_FREE_FREE_PRINT_H

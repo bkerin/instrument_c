@@ -57,56 +57,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-// The stuff in this header is the best way to instrument code to see values.
-// IMPROVEME: should we change format_free_print.h to use only C11 _Generic
-// it could then be included here unconditionally.
-#ifdef __GNUC__
-#  include "format_free_print.h"
-#endif
-
-// File-Line-Function Tuple
-#define FLFT __FILE__, __LINE__, __func__
-
-// Check Point: prints source location followed by a newline
-#define CP() printf ("%s:%i:%s: checkpoint\n", FLFT)
-
-// Die Point.  Change a CP() to this when you don't want to see more after it.
-#define DP()                                                   \
-  do {                                                         \
-    printf ("%s:%i:%s: is a die point, will now die\n", FLFT); \
-    exit (EXIT_FAILURE);                                       \
-  } while ( 0 )
-
-// If for some reason format_free_print.h doesn't do what you need these
-// next three might be useful:
-
-// Trace Value: given an expression expr and an unquoted format code, print
-// the source location and expression text and value followed by a newline,
-// e.g. TV (my_int, %i), TV (my_sub_returning_int (), %i).
-#define TV(expr, format_code)                                    \
-  printf ("%s:%i:%s: " #expr ": " #format_code "\n", FLFT, expr)
-
-// Like TV(), but die after.  To easily avoid seeing additional garbage output.
-#define TVD(expr, format_code) \
-  do {                         \
-    TV (expr, format_code);    \
-    exit (EXIT_FAILURE);       \
-  } while ( 0 )
-
-// Trace Stuff: print expanded format string in first argument, using values
-// given in remaining arguments, tagged with source location and added newline
-#ifdef __GNUC__   // This one needs GNU comma-swallowing __VA_ARGS__ extension
-#  define TS(fmt, ...) printf ("%s:%i:%s: " fmt "\n", FLFT, ## __VA_ARGS__)
-#endif
-
-// Like TS() then Die.  To easily avoid seeing additional garbage output.
-#ifdef __GNUC__   // This one needs GNU comma-swallowing __VA_ARGS__ extension
-#  define TSD(fmt, ...)       \
-     do {                     \
-       TS (fmt, __VA_ARGS__); \
-       exit (EXIT_FAILURE);   \
-     } while ( 0 )
-#endif
+#include "format_free_print.h"
 
 static void
 get_executable_name (char *executable_name)
@@ -422,16 +373,14 @@ backtrace_with_line_numbers (void)
 }
 
 // Convenience wrapper that prints "Backtrace:\n" and the result of
-// backtrace_with_line_numbers() to stderr.
-#define BACKTRACE()                                       \
-  do {                                                    \
-    char *XxX_backtrace = backtrace_with_line_numbers (); \
-    fprintf (stderr, "Backtrace:\n%s", XxX_backtrace);    \
-    free (XxX_backtrace);                                 \
+// backtrace_with_line_numbers() to FORMAT_FREE_PRINT_STREAM.
+#define BACKTRACE()                                                      \
+  do {                                                                   \
+    char *XxX_backtrace = backtrace_with_line_numbers ();                \
+    fprintf (FORMAT_FREE_PRINT_STREAM, "Backtrace:\n%s", XxX_backtrace); \
+    free (XxX_backtrace);                                                \
   } while (0)
 
-// Like assert(), but prints a full backtrace (if NDEBUG isn't defined).
-// All caveats of backtrace_with_line_numbers() apply.  */
 #ifndef NDEBUG
 
 // Use GCC branch-predicting test for assertions if possible
@@ -441,6 +390,8 @@ backtrace_with_line_numbers (void)
 #    define INSTRUMENT_MAYBE_EXPECT_FALSE(cond) (cond)
 #  endif
 
+// Like assert(), but prints a full backtrace (if NDEBUG isn't defined).
+// All caveats of backtrace_with_line_numbers() apply.  */
 #  define ASSERT_BT(cond)                                                   \
     do {                                                                    \
       if ( INSTRUMENT_MAYBE_EXPECT_FALSE (!(cond)) ) {                      \
@@ -448,15 +399,33 @@ backtrace_with_line_numbers (void)
             stderr,                                                         \
             "%s: %s:%i:%s: Assertion ` " #cond "' failed.  Backtrace:\n%s", \
             program_invocation_short_name,                                  \
-            FLFT,                                                           \
+            FORMAT_FREE_PRINT_FLFT,                                         \
             backtrace_with_line_numbers() );                                \
         abort ();                                                           \
       }                                                                     \
     } while ( 0 )
 
+// Like ASSERT_BT() (*including* consideration of NDEBUG), but writes
+// to FORMAT_FREE_PRINT_STREAM and "dies" with FORMAT_FREE_PRINIT_DIE()
+// instead of abort().
+#  define ASSERT_FFP(cond)                                                  \
+    do {                                                                    \
+      if ( INSTRUMENT_MAYBE_EXPECT_FALSE (!(cond)) ) {                      \
+        fprintf (                                                           \
+            FORMAT_FREE_PRINT_STREAM,                                       \
+            "%s: %s:%i:%s: Assertion ` " #cond "' failed.  Backtrace:\n%s", \
+            program_invocation_short_name,                                  \
+            FORMAT_FREE_PRINT_FLFT,                                         \
+            backtrace_with_line_numbers() );                                \
+        FORMAT_FREE_PRINT_DIE ();                                           \
+      }                                                                     \
+    } while ( 0 )
+
 #else
 
-#  define ASSERT_BT(COND)
+#  define ASSERT_BT(cond)
+
+#  define ASSERT_FFP(cond)
 
 #endif
 
