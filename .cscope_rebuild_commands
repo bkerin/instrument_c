@@ -1,0 +1,4 @@
+# The -s here assumes that the bash source tree is in the expected spot and
+# gives a database which enables lookup of things in the bash sources from this
+# split-out loadable bash command dir.
+cscope -b -q -R -s../bash
