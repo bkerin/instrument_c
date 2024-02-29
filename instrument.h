@@ -489,7 +489,8 @@ what_func_func (void *func_addr)
         temp_file );
   // Careful: testing for grep no-match return code needs WEXITSTATUS()
   // FIXME: this is only testing that tee worked, could do better with
-  // set -o pipefail on bash at least
+  // set -o pipefail on bash at least, but this fixme will go away anyway
+  // if we switch to addr2line as per the fixme above
   assert (return_code == 0);
 
   // If we found a match using nm on the executable, we're done.

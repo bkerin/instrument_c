@@ -1,6 +1,8 @@
 
 include sanity.mk
 
+SHELL = /bin/bash
+
 HEADERS = $(wildcard *.h)
 
 SOURCES = $(wildcard *.c)
@@ -23,10 +25,14 @@ OBJS = $(patsubst %.c,%.o,$(SOURCES))
 # you'll want to arrange for your final production build to ommit it.
 #INCR_LDFLAGS = -fuse-ld=gold -Wl,--incremental
 
-# FIXME: should check for at least gcc-8 or larter (and this used to be
-# explicitly set to gcc-10.1.0 so maybe it needs later things as well,
-# though hopefully all are common enough now anyway can work for random people
 CC = $(CCACHE) gcc
+
+.PHONY: check_gcc_version
+check_gcc_version: MINIMUM_GCC_VERSION = 8.0
+check_gcc_version: GCC_VERSION = \
+  $(shell gcc --version | perl -n -e 'm/^gcc.*\s(\d+\.\d+)\.\d+/m and print "$$1\n"')
+check_gcc_version:
+	(( $$(echo "$(GCC_VERSION) > $(MINIMUM_GCC_VERSION)" | bc -l) ))
 
 # We use some GNU libc extension functions.  This also serves as a example
 # of how to pass the same cpp flags to cflow as well as the compiler.
@@ -122,7 +128,7 @@ CFLAGS = -fstack-protector $(SUPPORTED_WARNING_OPTIONS) -Werror -g -fPIC -O0
 # Only Because we want to test the optional format_free_print_pt_extensions.h
 CPPFLAGS += -DHAVE_FORMAT_FREE_PRINT_PT_EXTENSIONS_H
 
-$(OBJS): %.o: %.c $(HEADERS) Makefile
+$(OBJS): %.o: %.c $(HEADERS) Makefile check_gcc_version
 	# See the comments in instrument.h for the reasons for these options
 	# and for the double build.
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -O2 $< -o $@   # To trigger errs/warns
@@ -131,6 +137,7 @@ $(OBJS): %.o: %.c $(HEADERS) Makefile
 format_free_print_test: format_free_print_test.o
 	$(CC) $(INCR_LDFLAGS) $+ -o $@
 
+# FIXME: the tests should get a TAP harness so they don't need inspection
 .PHONY: run_format_free_print_test
 run_format_free_print_test: format_free_print_test
 	./$<
@@ -143,6 +150,7 @@ instrument_test: instrument_test.o libdemo_shared_lib.so
 	# See the Program Library Howto for a real life shared lib/DLL setup
 	$(CC) $(INCR_LDFLAGS) -Wl,-rpath,`pwd` $+ -ldl -o $@
 
+# FIXME: the tests should get a TAP harness so they don't need inspection
 .PHONY: run_instrument_test
 run_instrument_test: instrument_test
 	./$<                                                                  \

@@ -130,12 +130,12 @@
 // Convenience alias.  Causes a name clash if clients name something FFPFSD :)
 #define FFPFSD FORMAT_FREE_FREE_PRINT_FLOAT_SIGNIFICANT_DIGITS
 
-// FIXMELATER: Seems like we would want const versions of everything in
-// the below list.  C11 _Generic approach sounds like it would require
-// it at least.  However for the current approach it isn't necessary and
-// doesn't work for most types because the const types are apparently viewed
-// as compatible (the exception being char const * which seems to need the
-// const version to exist).  Seems like silly compiler buggers but whatever.
+// FIXXME: Seems like we would want const versions of everything in the below
+// list.  C11 _Generic approach sounds like it would require it at least.
+// However for the current approach it isn't necessary and doesn't work for
+// most types because the const types are apparently viewed as compatible
+// (the exception being char const * which seems to need the const version
+// to exist).  Seems like silly compiler buggers but whatever.
 
 // Try to Print Thing (which must be of one of the known types).  This is
 // somewhat adventurous code.  Note that if two types on this list are
@@ -279,9 +279,6 @@
 
 #endif // __GNUC__
 
-// FIXME: WORK POINT: make sure the tests for these next four are in the
-// right place (the die ones might not have tests I'm not sure):
-
 // Trace Value: given an expression expr and an unquoted format code, print
 // the source location and expression text and value followed by a newline,
 // e.g. TV (my_int, %i), TV (my_sub_returning_int (), %i).
@@ -291,7 +288,7 @@
       FORMAT_FREE_PRINT_FLFT,                    \
       expr )
 
-// Like TV(), but die after.
+// Like TV(), but Die after.
 #define TVD(expr, format_code) \
   do {                         \
     TV (expr, format_code);    \
@@ -305,7 +302,7 @@
      printf ("%s:%i:%s: " fmt "\n", FORMAT_FREE_PRINT_FLFT, ## __VA_ARGS__)
 #endif
 
-// Like TS() then die.
+// Like TS() then Die.
 #ifdef __GNUC__   // This one needs GNU comma-swallowing __VA_ARGS__ extension
 #  define TSD(fmt, ...)          \
      do {                        \
@@ -329,7 +326,7 @@
     fprintf (FORMAT_FREE_PRINT_STREAM, #name "\n"); \
   } while ( 0 )
 
-// Die Point: output (e.g. "Dying at my_file.c:42:m_func\n" then die)
+// Die Point: output (e.g. "Dying at my_file.c:42:m_func\n" then Die)
 #define DP()                       \
    do {                            \
      fprintf (                     \
@@ -341,7 +338,7 @@
      } while ( 0 );                \
    } while ( 0 )
 
-// Named Die Point (e.g. NDP(my dp) will output "my dp\n" then die)
+// Named Die Point (e.g. NDP(my dp) will output "my dp\n" then Die)
 #define NDP(name)                                    \
    do {                                              \
      fprintf (FORMAT_FREE_PRINT_STREAM, #name "\n"); \

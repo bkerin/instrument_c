@@ -194,22 +194,24 @@ main (void)
   PT ("\n");
 #endif
 
-  // Note that the stringified label used for literal floating point values
-  // isn't subject to printf() rounding, but the value itself is.
-  PT ("Other available variants (mostly tested indirectly by the above):\n");
-  PT ("  PT  (thing) -- without source locations or implicit newlines\n");
-  PT ("  PL  (thing) -- Like PT(), but adds a Label (e.g. var_name: 42)\n");
-  PT ("  DT  (thing) -- Dump Thing.  Like PL(), but also appends a newline\n");
-  PT ("  TT  (thing) -- Trace Thing.  Like DT() including file:line:func:\n");
-  PT ("  TD  (thing) -- Like TT(), but exit (EXIT_FAILURE) afterwords\n");
-  PT ("  ??X (thing) -- Analogous variants to the above, but only work for\n");
-  PT ("                 uint8_t/uint16_t/uint32_t/uint64_t and output hex\n");
+  PT ("Checkpoint and named checkpoint macros are available:\n");
+  CP ();
+  NCP (named checkpoint);
+  PT ("\n");
 
+  PT ("There are also macros that take an unquoted single-value format "
+      "argument:\n");
+  TV (test_int, %i);
+  PT ("\n");
+
+  PT ("There's a macros to prefix file:line:func: to a format string:\n");
+  TS ("at this point test_int is %i", test_int);
+  PT ("\n");
+
+  PT ("In addition to the trace macros tested above, there are analogous\n");
+  PT ("versions that don't prefix file:line:func, don't add a newline, or\n");
+  PT ("die after their ouput.  See the README.md for the full list.\n");
   printf ("\n");
-
-  // FIXME: doc th eother things that are available TV TVD TS TSD CP DP
-  // NCP NDP and sync this list to what's in the README.md, or else remove
-  // this stuff?
 
   printf (
       "WARNING: this test program always exits with exit code 0 if it makes "
