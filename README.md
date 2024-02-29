@@ -86,7 +86,7 @@ for non-gcc compilers where the format-free variants aren't available):
 It's possible to redefine what "death" means, e.g. when working on a loadable
 module it may be convenient to "die" with `longjmp()` rather than `exit`.
 
-Code like this in `my_loadable.c`:
+Code like this in `some_loadable.c`:
 
 ```C
 #include <setjmp.h>
@@ -108,7 +108,7 @@ some_loadable_module_entry_point (void)
 Could be compiled like this:
 
 ```
-gcc -D'FORMAT_FREE_PRINT_DIE()=longjmp (jmpBuf, SOME_FAILURE_CODE)' -fPIC -g -O0 mny_loadable.c -o my_loadable.o
+gcc -D'FORMAT_FREE_PRINT_DIE()=longjmp (jmpBuf, SOME_FAILURE_CODE)' -fPIC -g -O0 some_loadable.c -o some_loadable.o
 ```
 
 Of course it's also possible to define `FORMAT_FREE_PRINT_DIE()` in the source
@@ -137,14 +137,20 @@ int main (void)
 }
 ```
 
-For consistency with `assert()` `ASSERT_BT()` honors `NDEBUG`, always writes to
-`stderr`, and always calls `abort()`.  There is also `ASSERT_FFP()` which also
-honors `NDEBUG` but writes to `FORMAT_FREE_PRINT_STREAM` and "dies" with
-`FORMAT_FREE_PRINT_DIE()`.
-
 will hopefully show a backtrace.  Note however that stack unwinding involves
 heuristics and callers can do things that defeat it.  Also, backtracing through
 shared or dynamically loaded libraries isn't fully implemented.
+
+For consistency with `assert()` `ASSERT_BT()` honors `NDEBUG`, always writes to
+`stderr`, and always calls `abort()`.  There are also:
+
+  * `ASSERT_FFP()` which honors `NDEBUG` but writes its message and
+     backtrace to `FORMAT_FREE_PRINT_STREAM` and "dies" with
+     `FORMAT_FREE_PRINT_DIE()`
+
+  * `ASSERT_NBT()` which honors `NDEBUG`, writes a message to
+     FORMAT_FREE_PRINT_STREAM and "dies" with `FORMAT_FREE_PRINT_DIE()`  but
+     doesn't produce a backtrace.
 
 The `-ldl` link option is only required for `what_func_func()`.  If you don't
 care about getting the names of functions from function pointers you might

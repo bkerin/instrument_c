@@ -421,11 +421,26 @@ backtrace_with_line_numbers (void)
       }                                                                     \
     } while ( 0 )
 
+// Like ASSERT_FFP() but doesn't try to produce a backtrace.
+#define ASSERT_NBT(cond)                                      \
+    do {                                                      \
+      if ( INSTRUMENT_MAYBE_EXPECT_FALSE (!(cond)) ) {        \
+        fprintf (                                             \
+            FORMAT_FREE_PRINT_STREAM,                         \
+            "%s: %s:%i:%s: Assertion ` " #cond "' failed.\n", \
+            program_invocation_short_name,                    \
+            FORMAT_FREE_PRINT_FLFT );                         \
+        FORMAT_FREE_PRINT_DIE ();                             \
+      }                                                       \
+    } while ( 0 )
+
 #else
 
 #  define ASSERT_BT(cond)
 
 #  define ASSERT_FFP(cond)
+
+#  define ASSERT_NBT(cond)
 
 #endif
 
