@@ -108,10 +108,10 @@ some_loadable_module_entry_point (void)
 Could be compiled like this:
 
 ```
-gcc -DFORMAT_FREE_PRINT_DIE='longjmp (jmpBuf, SOME_FAILURE_CODE)' -fPIC -g -O0 mny_loadable.c -o my_loadable.o
+gcc -D'FORMAT_FREE_PRINT_DIE()=longjmp (jmpBuf, SOME_FAILURE_CODE)' -fPIC -g -O0 mny_loadable.c -o my_loadable.o
 ```
 
-Of course it's also possible to define `FORMAT_FREE_PRINT_DIE` in the source
+Of course it's also possible to define `FORMAT_FREE_PRINT_DIE()` in the source
 itself but care is required to ensure the definition comes before any inclusion
 of `format_free_print.h`, or you'll get the default behavior.
 
