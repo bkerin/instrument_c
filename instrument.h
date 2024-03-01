@@ -57,6 +57,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+// NOTE: this didn't used to be required for but for sanity all the
+// regular instrumentation macros have been move to format_free_print.h
+// (including the ones that need a format string :) Don't worry though all
+// the GCC-specific macros are #ifdef'ed (not that this whole lib has been
+// tested with anything but GCC yet anyway).  So besides needing to dump
+// both headers in with your code to use instrument.h nothing has changed.
 #include "format_free_print.h"
 
 static void
